@@ -458,6 +458,7 @@ ovl.ev.on("messages.delete", async (deletedMessageData) => {
       console.log(`Tous les messages ont été supprimés dans : ${jid}`);
     } else {
       for (const key of keys) {
+        console.log('dlt message');
         const deletedMsg = await ovl.loadMessage(jid, key.id);
 
         if (deletedMsg && deletedMsg.message) {
