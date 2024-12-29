@@ -413,7 +413,7 @@ ovlcmd(
     desc: "Supprimer un message dans le groupe.",
   },
   async (ms_org, ovl, cmd_options) => {
-    const { msg_Repondu, auteur_Msg_Repondu, verif_Admin, verif_Ovl_Admin, verif_Groupe, id_Bot, dev_num, dev_id } = cmd_options;
+    const { msg_Repondu, ms, auteur_Msg_Repondu, verif_Admin, verif_Ovl_Admin, verif_Groupe, id_Bot, dev_num, dev_id } = cmd_options;
 
     if (!verif_Groupe) {
       return ovl.sendMessage(ms_org, { text: "Commande utilisable uniquement dans les groupes." });
@@ -439,7 +439,7 @@ ovlcmd(
       const key = {
         remoteJid: ms_org,
         fromMe: auteur_Msg_Repondu === id_Bot,
-        id: msg_Repondu.stanzaId,
+        id: ms.message.extendedTextMessage.contextInfo.stanzaId,
         participant: auteur_Msg_Repondu,
       };
 
@@ -790,7 +790,7 @@ ovlcmd(
 ovlcmd(
   {
     nom_cmd: "vcf",
-    classe: "groupe",
+    classe: "Groupe",
     react: "📇",
     desc: "Enregistre les contacts de tous les membres du groupe dans un fichier VCF",
   },
