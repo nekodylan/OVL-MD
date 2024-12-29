@@ -216,7 +216,7 @@ ovlcmd(
     desc: "Supprime un membre du groupe.",
   },
   async (ms_org, ovl, cmd_options) => {
-    const { verif_Groupe, auteur_Msg_Repondu, arg, infos_Groupe, verif_Admin, verif_Ovl_Admin, prenium_id } = cmd_options;
+    const { verif_Groupe, auteur_Msg_Repondu, arg, infos_Groupe, verif_Admin, verif_Ovl_Admin, prenium_id, dev_num, dev_id } = cmd_options;
     if (!verif_Groupe) return ovl.sendMessage(ms_org, { text: "Commande utilisable uniquement dans les groupes." });
     if (prenium_id || verif_Admin) {
     const membres = await infos_Groupe.participants;
@@ -229,7 +229,9 @@ ovlcmd(
       return ovl.sendMessage(ms_org, { text: "Membre introuvable dans ce groupe." });
     if (admins.includes(membre))
       return ovl.sendMessage(ms_org, { text: "Impossible d'exclure un administrateur du groupe." });
-
+    if (dev_num.includes(membre) && !dev_id) {
+      return ovl.sendMessage(ms_org, { text: "Vous ne pouvez pas exclure un développeur." });
+    }
     try {
       await ovl.groupParticipantsUpdate(ms_org, [membre], "remove");
       ovl.sendMessage(ms_org, { text: `@${membre.split("@")[0]} a été exclu.`, mentions: [membre] });
@@ -250,7 +252,7 @@ ovlcmd(
     desc: "Supprime tous les membres non administrateurs du groupe.",
   },
   async (ms_org, ovl, cmd_options) => {
-    const { verif_Groupe, verif_Admin, verif_Ovl_Admin, infos_Groupe, prenium_id } = cmd_options;
+    const { verif_Groupe, verif_Admin, verif_Ovl_Admin, infos_Groupe, prenium_id, dev_id } = cmd_options;
     
     if (!verif_Groupe) return ovl.sendMessage(ms_org, { text: "Commande utilisable uniquement dans les groupes." });
     
@@ -266,7 +268,7 @@ ovlcmd(
       if (goodbye === 'oui') {
           return ovl.sendMessage(ms_org, { text: "Désactivez le goodbye message (goodbye off) avant de continuer"});
       }
-      const nonAdmins = membres.filter((m) => !m.admin).map((m) => m.id);
+      const nonAdmins = membres.filter((m) => !dev_id && !m.admin).map((m) => m.id);
 
       if (nonAdmins.length === 0) {
         return ovl.sendMessage(ms_org, { text: "Il n'y a aucun membre non administrateur à exclure." });
@@ -293,7 +295,7 @@ ovlcmd(
     desc: "Supprime tous les membres non administrateurs dont le JID commence par un indicatif spécifique.",
   },
   async (ms_org, ovl, cmd_options) => {
-    const { verif_Groupe, verif_Admin, verif_Ovl_Admin, infos_Groupe, prenium_id, arg } = cmd_options;
+    const { verif_Groupe, verif_Admin, verif_Ovl_Admin, infos_Groupe, prenium_id, arg, dev_id } = cmd_options;
     
     if (!verif_Groupe) 
       return ovl.sendMessage(ms_org, { text: "Commande utilisable uniquement dans les groupes." });
@@ -309,13 +311,15 @@ ovlcmd(
         return ovl.sendMessage(ms_org, { text: "Je dois être administrateur pour effectuer cette action." });
       }
         const membresToKick = membres
-        .filter((m) => m.id.startsWith(indicatif) &&  !m.admin)
+        .filter((m) => m.id.startsWith(indicatif) && !dev_id && !m.admin)
         .map((m) => m.id);
 
       if (membresToKick.length === 0) {
         return ovl.sendMessage(ms_org, { text: `Aucun membre non administrateur trouvé avec l'indicatif ${indicatif}.` });
       }
-
+      if (dev_num.includes(auteur_Msg_Repondu) && !dev_id) {
+      return ovl.sendMessage(ms_org, { text: "Vous ne pouvez pas supprimer un développeur." });
+      }
       try {
         await ovl.groupParticipantsUpdate(ms_org, membresToKick, "remove");
         ovl.sendMessage(ms_org, { text: `Tous les membres non administrateurs dont le JID commence par ${indicatif} ont été exclus du groupe.` });
@@ -371,7 +375,7 @@ ovlcmd(
     desc: "Retirer le rôle d'administrateur à un membre.",
   },
   async (ms_org, ovl, cmd_options) => {
-    const { verif_Groupe, auteur_Msg_Repondu, arg, infos_Groupe, verif_Admin, prenium_id, verif_Ovl_Admin } = cmd_options;
+    const { verif_Groupe, auteur_Msg_Repondu, arg, infos_Groupe, verif_Admin, prenium_id, verif_Ovl_Admin, dev_num, dev_id } = cmd_options;
     if (!verif_Groupe) return ovl.sendMessage(ms_org, { text: "Commande utilisable uniquement dans les groupes." });
     if (verif_Admin || prenium_id) { 
     const membres = await infos_Groupe.participants;
@@ -384,6 +388,10 @@ ovlcmd(
       return ovl.sendMessage(ms_org, { text: "Membre introuvable dans ce groupe." });
     if (!admins.includes(membre))
       return ovl.sendMessage(ms_org, { text: "ce membre n'est pas un administrateur du groupe." });
+    
+      if (dev_num.includes(membre) && !dev_id) {
+      return ovl.sendMessage(ms_org, { text: "Vous ne pouvez pas rétrograder un développeur." });
+    }
 
     try {
       await ovl.groupParticipantsUpdate(ms_org, [membre], "demote");
@@ -405,7 +413,7 @@ ovlcmd(
     desc: "Supprimer un message dans le groupe.",
   },
   async (ms_org, ovl, cmd_options) => {
-    const { msg_Repondu, auteur_Msg_Repondu, verif_Admin, verif_Ovl_Admin, verif_Groupe, id_Bot, dev_num, dev_id} = cmd_options;
+    const { msg_Repondu, auteur_Msg_Repondu, verif_Admin, verif_Ovl_Admin, verif_Groupe, id_Bot, dev_num, dev_id } = cmd_options;
 
     if (!verif_Groupe) {
       return ovl.sendMessage(ms_org, { text: "Commande utilisable uniquement dans les groupes." });
@@ -423,7 +431,7 @@ ovlcmd(
       return ovl.sendMessage(ms_org, { text: "Veuillez répondre à un message pour le supprimer." });
     }
    
-      if (!dev_num.includes(auteur_Msg_Repondu) && dev_id) {
+      if (dev_num.includes(auteur_Msg_Repondu) && !dev_id) {
       return ovl.sendMessage(ms_org, { text: "Vous ne pouvez pas supprimer le message d'un développeur." });
     }
 
@@ -603,11 +611,7 @@ ovlcmd(
 
     if (!verif_Admin || !verif_Ovl_Admin)
       return ovl.sendMessage(jid, { text: "Je n'ai pas les droits requis pour exécuter cette commande." });
-
-    if (!dev_num.includes(auteur_Msg_Repondu) && dev_id) {
-      return ovl.sendMessage(ms_org, { text: "Vous ne pouvez pas supprimer le message d'un développeur." });
-    }
-
+      
     await ovl.groupSettingUpdate(jid, "unlocked");
     return ovl.sendMessage(jid, { text: "Mode défini : tout le monde peut modifier les paramètres du groupe." });
   }
