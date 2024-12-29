@@ -48,8 +48,7 @@ ovlcmd(
 
     if (!prenium_id) {
       return ovl.sendMessage(ms_org, { text: "Vous n'avez pas le droit d'exécuter cette commande." });
-      
-
+    }
     if (!arg[0]) {
       return ovl.sendMessage(ms_org, { text: "Veuillez fournir du code JavaScript à exécuter." });
     }
