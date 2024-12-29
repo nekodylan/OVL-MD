@@ -396,6 +396,7 @@ async function groupe_ban(groupId) {
 }); 
          //fin événement message 
 
+         //group participants update
 ovl.ev.on('group-participants.update', async (data) => {
      const parseID = (jid) => {
         if (!jid) return jid;
@@ -448,6 +449,68 @@ ovl.ev.on('group-participants.update', async (data) => {
         console.error(err);
     }
 });
+         //Fin group participants update
+
+         // Antidelete
+ovl.on("messages.delete", async (deletedMessageData) => {
+  try {
+    const { keys, jid, all } = deletedMessageData;
+    const settings = await Antidelete.findOne({ where: { id: jid } });
+    if (!settings || settings.mode !== 'oui') return;
+
+    if (all) {
+      console.log(`Tous les messages ont été supprimés dans : ${jid}`);
+    } else {
+      for (const key of keys) {
+        const deletedMsg = await ovl.loadMessage(jid, key.id);
+
+        if (deletedMsg && deletedMsg.message) {
+          const content = deletedMsg.message;
+          const quotedMsg = { quoted: deletedMsg };
+
+          if (content.conversation) {
+            const text = content.conversation || '';
+            await sendMessage(settings, jid, { text }, quotedMsg);
+          } else if (content.imageMessage) {
+            const buffer = await ovl.dl_save_media_ms(deletedMsg);
+            const caption = content.imageMessage.caption || '';
+            await sendMessage(settings, jid, { image: buffer, caption }, quotedMsg);
+          } else if (content.videoMessage) {
+            const buffer = await ovl.dl_save_media_ms(deletedMsg);
+            const caption = content.videoMessage.caption || '';
+            await sendMessage(settings, jid, { video: buffer, caption }, quotedMsg);
+          } else if (content.audioMessage) {
+            const buffer = await ovl.dl_save_media_ms(deletedMsg);
+            await sendMessage(settings, jid, { audio: buffer, mimetype: 'audio/mp4' }, quotedMsg);
+          } else if (content.statusUpdateMessage) {
+            const buffer = await ovl.dl_save_media_ms(deletedMsg);
+            const caption = content.statusUpdateMessage.text || '';
+            await sendMessage(settings, jid, { image: buffer, caption }, quotedMsg);
+          } else {
+            const text = 'Un message de type inconnu a été supprimé.';
+            await sendMessage(settings, jid, { text }, quotedMsg);
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Erreur lors de la gestion des messages supprimés :', error);
+  }
+});
+
+async function sendMessage(settings, jid, content, quotedMsg) {
+  try {
+    if (settings.type === 'gc' && !jid.endsWith('@g.us')) {
+      await ovl.sendMessage(jid, content, quotedMsg);
+    } else if (settings.type === 'pm') {
+      const ownerId = ovl.user.id;
+      await ovl.sendMessage(ownerId, content, quotedMsg);
+    }
+  } catch (error) {
+    console.error('Erreur lors de l’envoi du message :', error);
+  }
+}
+// FIN ANTIDELETE        
          
 ovl.ev.on("connection.update", async (con) => {
     const { connection, lastDisconnect } = con;
