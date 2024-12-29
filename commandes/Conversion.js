@@ -6,6 +6,10 @@ const { Sticker, StickerTypes } = require("wa-sticker-formatter");
 const { execSync, exec } = require("child_process");
 const path = require('path');
 const config = require('../set');
+const gTTS = require('gtts');
+const axios = require('axios');
+const FormData = require('form-data');
+const { readFileSync } = require('fs');
 const catbox = new Catbox();
 
 async function uploadToCatbox(filePath) {
@@ -456,3 +460,170 @@ ovlcmd(
   }
 );
 
+ovlcmd(
+  {
+    nom_cmd: "remini",
+    classe: "Conversion",
+    react: "🖼️",
+    desc: "Amélioration de la qualité des images"
+  },
+  async (ms_org, ovl, cmd_options) => {
+    const { msg_Repondu } = cmd_options;
+
+    if (msg_Repondu?.imageMessage) {
+      try {
+        const image = await ovl.dl_save_media_ms(msg_Repondu.imageMessage);
+        if (!image) {
+          return ovl.sendMessage(ms_org, { text: "Impossible de télécharger l'image. Réessayez." });
+        }
+
+        const enhancedImageBuffer = await remini(image, 'enhance');
+
+        await ovl.sendMessage(ms_org, {
+          image: enhancedImageBuffer,
+          caption: `\`\`\`Powered By OVL-MD\`\`\``,
+        });
+      } catch (err) {
+        console.error("Erreur :", err);
+        return ovl.sendMessage(ms_org, {
+          text: "Une erreur est survenue pendant le traitement de l'image.",
+        });
+      }
+    } else {
+      return ovl.sendMessage(ms_org, {             
+        text: "Veuillez répondre à une image pour améliorer sa qualité.",
+      });
+    }
+  }
+);
+
+const remini = async (image, filterType) => {
+	const availableFilters = ['enhance', 'recolor', 'dehaze'];
+	const selectedFilter = availableFilters.includes(filterType)
+		? filterType
+		: availableFilters[0];
+	const apiUrl = `https://inferenceengine.vyro.ai/${selectedFilter}`;
+
+	const form = new FormData();
+	form.append('model_version', 1);
+
+	const imageBuffer = Buffer.isBuffer(image) ? image : readFileSync(image);
+	form.append('image', imageBuffer, {
+		filename: 'enhance_image_body.jpg',
+		contentType: 'image/jpeg',
+	});
+	const response = await axios.post(apiUrl, form, {
+		headers: {
+			...form.getHeaders(),
+			'User-Agent': 'okhttp/4.9.3',
+			Connection: 'Keep-Alive',
+			'Accept-Encoding': 'gzip',
+		},
+		responseType: 'arraybuffer',
+	});
+	return Buffer.from(response.data);
+};
+
+ovlcmd(
+  {
+    nom_cmd: "emix",
+    classe: "Conversion",
+    react: "🌟",
+    desc: "Mixes deux emojis pour créer un sticker"
+  },
+  async (ms_org, ovl, cmd_options) => {
+    const { arg, prefixe } = cmd_options;
+
+    if (!arg || arg.length < 1) return ovl.sendMessage(ms_org, { text: `Example: ${prefixe}emix 😅;🤔` });
+
+let [emoji1, emoji2] = arg[0].split(';');
+
+    try {
+      let response = await axios.get(`https://tenor.googleapis.com/v2/featured?key=AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ&contentfilter=high&media_filter=png_transparent&component=proactive&collection=emoji_kitchen_v5&q=${encodeURIComponent(emoji1)}_${encodeURIComponent(emoji2)}`);
+      let data = response.data;
+
+      if (!data.results || data.results.length === 0) {
+        return ovl.sendMessage(ms_org, { text: "Aucun résultat trouvé pour ces emojis." });
+      }
+
+      for (let res of data.results) {
+        const imageBuffer = await axios.get(res.url, { responseType: 'arraybuffer' }).then(res => res.data);
+
+        const sticker = new Sticker(imageBuffer, {
+          pack: 'Emoji Mix Pack',
+          author: 'Bot Author',
+          type: StickerTypes.FULL,
+          quality: 100,
+        });
+
+        const stickerFileName = `${Math.floor(Math.random() * 10000)}.webp`;
+        await sticker.toFile(stickerFileName);
+
+        await ovl.sendMessage(ms_org, {
+          sticker: fs.readFileSync(stickerFileName),
+        });
+
+        fs.unlinkSync(stickerFileName);
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      return ovl.sendMessage(ms_org, { text: "Une erreur est survenue lors de la recherche de l'image." });
+    }
+  }
+);
+
+ovlcmd(
+  {
+    nom_cmd: "tts",
+    classe: "Conversion",
+    react: "🔊",
+    desc: "Convertit un texte en parole et renvoie l'audio.",
+  },
+  async (ms_org, ovl, cmd_options) => {
+    const { arg, prefixe } = cmd_options;
+
+    if (!arg[0]) {
+      return ovl.sendMessage(ms_org, {
+        text: `Entrez un texte à lire.`,
+      });
+    }
+
+    let lang = 'fr';
+    let textToRead = arg.join(' ');
+
+    if (arg[0].length === 2) {
+      lang = arg[0];
+      textToRead = arg.slice(1).join(' ');
+    }
+
+    try {
+      const gtts = new gTTS(textToRead, lang);
+      const audioPath = path.join(__dirname, 'output.mp3');
+
+      gtts.save(audioPath, function (err, result) {
+        if (err) {
+          return ovl.sendMessage(ms_org, {
+            text: "Une erreur est survenue lors de la conversion en audio. Veuillez réessayer plus tard.",
+          });
+        }
+
+        const audioBuffer = fs.readFileSync(audioPath);
+
+        const message = {
+          audio: audioBuffer,
+          mimetype: "audio/mpeg",
+          caption: `\`\`\`Powered By OVL-MD\`\`\``,
+        };
+
+        ovl.sendMessage(ms_org, message).then(() => {
+          fs.unlinkSync(audioPath);
+        });
+      });
+
+    } catch (error) {
+      return ovl.sendMessage(ms_org, {
+        text: "Une erreur est survenue lors de la conversion en audio. Veuillez réessayer plus tard.",
+      });
+    }
+  }
+);
