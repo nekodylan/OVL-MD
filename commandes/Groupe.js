@@ -405,7 +405,57 @@ ovlcmd(
     desc: "Supprimer un message dans le groupe.",
   },
   async (ms_org, ovl, cmd_options) => {
-    const { msg_Repondu, verif_Admin, verif_Ovl_Admin, verif_Groupe } = cmd_options;
+    const { msg_Repondu, auteur_Msg_Repondu, verif_Admin, verif_Ovl_Admin, verif_Groupe } = cmd_options;
+
+    if (!verif_Groupe) {
+      return ovl.sendMessage(ms_org, { text: "Commande utilisable uniquement dans les groupes." });
+    }
+
+    if (!verif_Admin) {
+      return ovl.sendMessage(ms_org, { text: "Vous devez être administrateur pour utiliser cette commande." });
+    }
+
+    if (!verif_Ovl_Admin) {
+      return ovl.sendMessage(ms_org, { text: "Je dois être administrateur pour effectuer cette action." });
+    }
+
+    if (!msg_Repondu) {
+      return ovl.sendMessage(ms_org, { text: "Veuillez répondre à un message pour le supprimer." });
+    }
+
+    try {
+        let key;
+        if(auteur_Msg_Repondu == id_Bot) {
+        key = {
+        remoteJid: ms_org,
+        fromMe: true,
+        id: msg_Repondu.key.id,
+        participant: auteur_Msg_Repondu
+       } 
+        } else { 
+        key = {
+        remoteJid: ms_org,
+        fromMe: true,
+        id: msg_Repondu.key.id,
+        participant: auteur_Msg_Repondu
+        }
+        }
+      await ovl.sendMessage(ms_org, { delete: key });
+      } catch (error) {
+      ovl.sendMessage(ms_org, { text: `Erreur lors de la suppression : ${error.message}` });
+    }
+  }
+);
+
+ovlcmd(
+  {
+    nom_cmd: "del",
+    classe: "Groupe",
+    react: "🗑️",
+    desc: "Supprimer un message dans le groupe.",
+  },
+  async (ms_org, ovl, cmd_options) => {
+    const { msg_Repondu, auteur_Msg_Repondu, verif_Admin, verif_Ovl_Admin, verif_Groupe, id_Bot } = cmd_options;
 
     if (!verif_Groupe) {
       return ovl.sendMessage(ms_org, { text: "Commande utilisable uniquement dans les groupes." });
@@ -426,12 +476,14 @@ ovlcmd(
     try {
       const key = {
         remoteJid: ms_org,
-        id: msg_Repondu.key.id,
-        participant: msg_Repondu.key.participant || msg_Repondu.key.remoteJid,
+        fromMe: auteur_Msg_Repondu === id_Bot,
+        id: msg_Repondu.stanzaId
+        participant: auteur_Msg_Repondu,
       };
 
       await ovl.sendMessage(ms_org, { delete: key });
-      } catch (error) {
+    } catch (error) {
+      console.error("Erreur lors de la suppression :", error);
       ovl.sendMessage(ms_org, { text: `Erreur lors de la suppression : ${error.message}` });
     }
   }
@@ -771,6 +823,52 @@ ovlcmd(
                      console.error(error);
                 }
   }}
+);
+
+ovlcmd(
+  {
+    nom_cmd: "vcf",
+    classe: "groupe",
+    react: "📇",
+    desc: "Enregistre les contacts de tous les membres du groupe dans un fichier VCF",
+  },
+  async (ms_org, ovl, cmd_options) => {
+    const { msg_Repondu } = cmd_options;
+
+    try {
+      if (!verif_Groupe) return ovl.sendMessage(ms_org, { text: "Cette commande doit être utilisée dans un groupe." });
+        
+      const groupMetadata = await ovl.groupMetadata(ms_org).catch((e) => null);
+
+      if (!groupMetadata || !groupMetadata.participants) {
+        return ovl.sendMessage(ms_org, { text: 'Échec de la récupération des métadonnées du groupe ou de la liste des participants.' });
+      }
+
+      const participants = groupMetadata.participants;
+      const vcfData = [];
+
+      for (const participant of participants) {
+        const number = participant.id.split('@')[0];
+        vcfData.push(`BEGIN:VCARD\nVERSION:3.0\nFN:${number}\nTEL;TYPE=CELL:${number}\nEND:VCARD`);
+      }
+
+      const groupName = groupMetadata.subject || `Groupe ${ms_org.key.remoteJid}`;
+      const vcfFileName = `contacts_groupe_${groupName}.vcf`;
+      const vcfFilePath = `./${vcfFileName}`;
+      
+      fs.writeFileSync(vcfFilePath, vcfData.join('\n'));
+
+      const message = `*TOUS LES CONTACTS DES MEMBRES ENREGISTRÉS*\nGroupe : *${groupName}*\nContacts : *${participants.length}*`;
+
+      const vcfFile = fs.readFileSync(vcfFilePath);
+      await ovl.sendMessage(ms_org, { document: vcfFile, mimetype: 'text/vcard', filename: vcfFileName, caption: message });
+
+      fs.unlinkSync(vcfFilePath); 
+    } catch (error) {
+      console.error('Erreur lors du traitement de la commande vcf:', error);
+      return ovl.sendMessage(ms_org, { text: 'Une erreur est survenue lors du traitement de la commande vcf.' });
+    }
+  }
 );
 
 ovlcmd(
