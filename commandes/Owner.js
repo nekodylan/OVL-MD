@@ -2,6 +2,9 @@ const { exec } = require("child_process");
 const { ovlcmd } = require("../framework/ovlcmd");
 const { Bans } = require('../DataBase/ban');
 const { Sudo } = require('../DataBase/sudo');
+const config = require('../set');
+const axios = require("axios");
+const { Sticker, StickerTypes } = require("wa-sticker-formatter");
 
 ovlcmd(
   {
@@ -71,7 +74,7 @@ ovlcmd(
     desc: "Bannir un utilisateur des commandes du bot",
   },
   async (jid, ovl, cmd_options) => {
-    const { repondre, arg, auteur_Msg_Repondu, prenium_id } = cmd_options;
+    const { repondre, arg, auteur_Msg_Repondu, prenium_id, dev_num } = cmd_options;
 
     try {
       if (!prenium_id) {
@@ -83,6 +86,9 @@ ovlcmd(
 
       if (!cible) return repondre("Mentionnez un utilisateur valide à bannir.");
 
+      if (dev_num.includes(cible)) {
+      return ovl.sendMessage(ms_org, { text: "Vous ne pouvez pas bannir un développeur." });
+      }
       const [ban] = await Bans.findOrCreate({
         where: { id: cible },
         defaults: { id: cible, type: "user" },
@@ -194,7 +200,7 @@ ovlcmd(
  ovlcmd(
   {
     nom_cmd: "setsudo",
-    classe: "administration",
+    classe: "Owner",
     react: "🔒",
     desc: "Ajoute un utilisateur dans la liste des utilisateurs premium.",
   },
@@ -233,7 +239,7 @@ ovlcmd(
 ovlcmd(
   {
     nom_cmd: "delsudo",
-    classe: "administration",
+    classe: "Owner",
     react: "❌",
     desc: "Supprime un utilisateur de la liste des utilisateurs premium.",
   },
@@ -264,4 +270,70 @@ ovlcmd(
       return repondre("Une erreur est survenue lors de la suppression de l'utilisateur de la liste premium.");
     }
   }
+);
+
+ovlcmd(
+    {
+        nom_cmd: "tgs",
+        classe: "Owner",
+        react: "",
+        desc: "Importe des stickers Telegram sur WhatsApp",
+    },
+    async (ms_org, ovl, cmd_options) => {
+        const { repondre, arg, prenium_id } = cmd_options;
+
+         if (!prenium_id) {
+      return ovl.sendMessage(ms_org, { text: "Vous n'avez pas le droit d'exécuter cette commande." });
+         }
+        if (!arg[0]) {
+            repondre("Merci de fournir un lien de stickers Telegram valide.");
+            return;
+        }
+
+        const lien = arg[0];
+        const nomStickers = lien.split("/addstickers/")[1];
+
+        if (!nomStickers) {
+            repondre("Lien incorrect");
+            return;
+        }
+
+        const urlAPI = `https://api.telegram.org/bot7644701915:AAGP8fIx_wv1pC7BNMpgncL4i-rRSDLlvqI/getStickerSet?name=${nomStickers}`;
+
+        try {
+            const { data } = await axios.get(urlAPI);
+            const stickers = data.result.stickers;
+
+            if (!stickers || stickers.length === 0) {
+                repondre("Aucun sticker trouvé dans cet ensemble.");
+                return;
+            }
+
+            repondre(`Nom du pack: ${data.result.name}\nType : ${data.result.is_animated ? "animés" : "statiques"}\nTotal : ${stickers.length} stickers\n`);
+
+            for (const stickerData of stickers) {
+                const fileInfo = await axios.get(`https://api.telegram.org/bot7644701915:AAGP8fIx_wv1pC7BNMpgncL4i-rRSDLlvqI/getFile?file_id=${stickerData.file_id}`);
+                const stickerBuffer = await axios({
+                    method: "get",
+                    url: `https://api.telegram.org/file/bot7644701915:AAGP8fIx_wv1pC7BNMpgncL4i-rRSDLlvqI/${fileInfo.data.result.file_path}`,
+                    responseType: "arraybuffer",
+                });
+
+                const sticker = new Sticker(stickerBuffer.data, {
+                    pack: config.STICKER_PACK_NAME,
+                    author: config.STICKER_AUTHOR_NAME,
+                    type: StickerTypes.FULL,
+                });
+
+                await ovl.sendMessage(ms_org, {
+                    sticker: await sticker.toBuffer(),
+                });
+            }
+
+            repondre("Tous les stickers ont été envoyés.");
+        } catch (error) {
+            console.error(error);
+            repondre("Une erreur s'est produite lors du téléchargement des stickers.");
+        }
+    }
 );
