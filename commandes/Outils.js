@@ -293,7 +293,7 @@ async function captureScreenshot(url) {
 ovlcmd(
   {
     nom_cmd: "capture",
-    classe: "utilitaires",
+    classe: "Outils",
     react: "📸",
     desc: "Prend une capture d'écran d'un site web.",
   },
