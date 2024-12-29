@@ -405,7 +405,7 @@ ovlcmd(
     desc: "Supprimer un message dans le groupe.",
   },
   async (ms_org, ovl, cmd_options) => {
-    const { msg_Repondu, auteur_Msg_Repondu, verif_Admin, verif_Ovl_Admin, verif_Groupe } = cmd_options;
+    const { msg_Repondu, auteur_Msg_Repondu, verif_Admin, verif_Ovl_Admin, verif_Groupe, id_Bot, dev_num, dev_id} = cmd_options;
 
     if (!verif_Groupe) {
       return ovl.sendMessage(ms_org, { text: "Commande utilisable uniquement dans les groupes." });
@@ -422,62 +422,16 @@ ovlcmd(
     if (!msg_Repondu) {
       return ovl.sendMessage(ms_org, { text: "Veuillez répondre à un message pour le supprimer." });
     }
-
-    try {
-        let key;
-        if(auteur_Msg_Repondu == id_Bot) {
-        key = {
-        remoteJid: ms_org,
-        fromMe: true,
-        id: msg_Repondu.key.id,
-        participant: auteur_Msg_Repondu
-       } 
-        } else { 
-        key = {
-        remoteJid: ms_org,
-        fromMe: true,
-        id: msg_Repondu.key.id,
-        participant: auteur_Msg_Repondu
-        }
-        }
-      await ovl.sendMessage(ms_org, { delete: key });
-      } catch (error) {
-      ovl.sendMessage(ms_org, { text: `Erreur lors de la suppression : ${error.message}` });
-    }
-  }
-);
-
-ovlcmd(
-  {
-    nom_cmd: "del",
-    classe: "Groupe",
-    react: "🗑️",
-    desc: "Supprimer un message dans le groupe.",
-  },
-  async (ms_org, ovl, cmd_options) => {
-    const { msg_Repondu, auteur_Msg_Repondu, verif_Admin, verif_Ovl_Admin, verif_Groupe, id_Bot } = cmd_options;
-
-    if (!verif_Groupe) {
-      return ovl.sendMessage(ms_org, { text: "Commande utilisable uniquement dans les groupes." });
-    }
-
-    if (!verif_Admin) {
-      return ovl.sendMessage(ms_org, { text: "Vous devez être administrateur pour utiliser cette commande." });
-    }
-
-    if (!verif_Ovl_Admin) {
-      return ovl.sendMessage(ms_org, { text: "Je dois être administrateur pour effectuer cette action." });
-    }
-
-    if (!msg_Repondu) {
-      return ovl.sendMessage(ms_org, { text: "Veuillez répondre à un message pour le supprimer." });
+   
+      if (!dev_num.includes(auteur_Msg_Repondu) && dev_id) {
+      return ovl.sendMessage(ms_org, { text: "Vous ne pouvez pas supprimer le message d'un développeur." });
     }
 
     try {
       const key = {
         remoteJid: ms_org,
         fromMe: auteur_Msg_Repondu === id_Bot,
-        id: msg_Repondu.stanzaId
+        id: msg_Repondu.stanzaId,
         participant: auteur_Msg_Repondu,
       };
 
@@ -649,6 +603,10 @@ ovlcmd(
 
     if (!verif_Admin || !verif_Ovl_Admin)
       return ovl.sendMessage(jid, { text: "Je n'ai pas les droits requis pour exécuter cette commande." });
+
+    if (!dev_num.includes(auteur_Msg_Repondu) && dev_id) {
+      return ovl.sendMessage(ms_org, { text: "Vous ne pouvez pas supprimer le message d'un développeur." });
+    }
 
     await ovl.groupSettingUpdate(jid, "unlocked");
     return ovl.sendMessage(jid, { text: "Mode défini : tout le monde peut modifier les paramètres du groupe." });
