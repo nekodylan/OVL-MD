@@ -114,7 +114,10 @@ ovl.ev.on("messages.upsert", async (m) => {
     async function obtenirUsersPremium() {
   try {
     const sudos = await Sudo.findAll({ attributes: ['id'] });
-    return sudos.map((entry) => entry.id.replace(/[^0-9]/g, ""));
+  if (!sudos.length) {
+  return [];
+}
+return sudos.map((entry) => entry.id.replace(/[^0-9]/g, ""));
   } catch (error) {
     console.error("Erreur lors de la récupération des utilisateurs sudo :", error);
     return [];
@@ -124,6 +127,7 @@ ovl.ev.on("messages.upsert", async (m) => {
     const premium_Users_id = [Ainz, Ainzbot, id_Bot_N, config.NUMERO_OWNER, sudoUsers].map((s) => `${s.replace(/[^0-9]/g, "")}@s.whatsapp.net`);
     const prenium_id = premium_Users_id.includes(auteur_Message);
     const dev_id = devNumbers.map((s) => `${s.replace(/[^0-9]/g, "")}@s.whatsapp.net`).includes(auteur_Message);
+    const dev_num = devNumbers.map((s) => `${s.replace(/[^0-9]/g, "")}@s.whatsapp.net`);
     const verif_Admin = verif_Groupe 
     ? admins.includes(auteur_Message) || premium_Users_id.includes(auteur_Message) 
     : false;
@@ -140,6 +144,7 @@ ovl.ev.on("messages.upsert", async (m) => {
         id_Bot,
         prenium_id,
         dev_id,
+        dev_num,
         id_Bot_N,
         verif_Ovl_Admin,
         prefixe,
