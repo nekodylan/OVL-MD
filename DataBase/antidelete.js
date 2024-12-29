@@ -24,7 +24,7 @@ const Antidelete = sequelize.define('Antidelete', {
   },
   type: {
     type: DataTypes.ENUM('gc', 'pm'),
-    defaultValue: 'gc',
+    defaultValue: 'pm',
   },
 }, {
   tableName: 'antidelete',
