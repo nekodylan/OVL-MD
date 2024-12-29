@@ -3,6 +3,7 @@ const { Sticker, StickerTypes } = require('wa-sticker-formatter');
 const { Antilink } = require("../DataBase/antilink");
 const { Antibot } = require("../DataBase/antibot");
 const { GroupSettings } = require("../DataBase/events");
+const { Antidelete } = require("../DataBase/antidelete");
 
 ovlcmd(
     {
@@ -138,15 +139,6 @@ ovlcmd(
                     });
                     const sticker_buffer = await sticker_msg.toBuffer();
                     contenu_msg = { sticker: sticker_buffer, mentions: membres_Groupe };
-                } else if (msg_Repondu.pollMessage) {
-                    let poll = msg_Repondu.pollMessage;
-                    await ovl.sendMessage(dest, {
-                        poll: {
-                            name: poll.poll.name,
-                            values: poll.poll.options,
-                        },
-                        mentions: membres_Groupe
-                    }, { quoted: ms });
                 } else {
                     contenu_msg = {
                         text: msg_Repondu.conversation,
@@ -298,15 +290,17 @@ ovlcmd(
     nom_cmd: "ckick",
     classe: "Groupe",
     react: "🛑",
-    desc: "Supprime tous les membres dont le JID commence par un indicatif spécifique.",
+    desc: "Supprime tous les membres non administrateurs dont le JID commence par un indicatif spécifique.",
   },
   async (ms_org, ovl, cmd_options) => {
     const { verif_Groupe, verif_Admin, verif_Ovl_Admin, infos_Groupe, prenium_id, arg } = cmd_options;
     
-    if (!verif_Groupe) return ovl.sendMessage(ms_org, { text: "Commande utilisable uniquement dans les groupes." });
+    if (!verif_Groupe) 
+      return ovl.sendMessage(ms_org, { text: "Commande utilisable uniquement dans les groupes." });
     
     if (prenium_id || verif_Admin) {
-      if (!arg[0]) return ovl.sendMessage(ms_org, { text: "Veuillez spécifier l'indicatif." });
+      if (!arg[0]) 
+        return ovl.sendMessage(ms_org, { text: "Veuillez spécifier l'indicatif." });
 
       const indicatif = arg[0];
       const membres = await infos_Groupe.participants;
@@ -314,15 +308,17 @@ ovlcmd(
       if (!verif_Ovl_Admin) {
         return ovl.sendMessage(ms_org, { text: "Je dois être administrateur pour effectuer cette action." });
       }
-         const membresToKick = membres.filter((m) => m.id.startsWith(indicatif)).map((m) => m.id);
+        const membresToKick = membres
+        .filter((m) => m.id.startsWith(indicatif) &&  !m.admin)
+        .map((m) => m.id);
 
       if (membresToKick.length === 0) {
-        return ovl.sendMessage(ms_org, { text: `Aucun membre trouvé avec l'indicatif ${indicatif}.` });
+        return ovl.sendMessage(ms_org, { text: `Aucun membre non administrateur trouvé avec l'indicatif ${indicatif}.` });
       }
 
-      try { 
-          await ovl.groupParticipantsUpdate(ms_org, membresToKick, "remove");
-        ovl.sendMessage(ms_org, { text: `Tous les membres dont le JID commence par ${indicatif} ont été exclus du groupe.` });
+      try {
+        await ovl.groupParticipantsUpdate(ms_org, membresToKick, "remove");
+        ovl.sendMessage(ms_org, { text: `Tous les membres non administrateurs dont le JID commence par ${indicatif} ont été exclus du groupe.` });
       } catch (err) {
         console.error("Erreur :", err);
         ovl.sendMessage(ms_org, { text: "Une erreur est survenue lors de l'exclusion des membres." });
@@ -897,6 +893,68 @@ ovlcmd(
     } catch (error) {
       console.error("Erreur lors de la configuration d'antibot :", error);
       return repondre("❌ Une erreur s'est produite lors de l'exécution de la commande.");
+    }
+  }
+);
+
+ovlcmd(
+  {
+    nom_cmd: "antidelete",
+    classe: "Groupe",
+    react: "🗑️",
+    desc: "Active ou configure l'antidelete pour les groupes",
+  },
+  async (jid, ovl, cmd_options) => {
+    const { repondre, arg, verif_Groupe, verif_Admin } = cmd_options;
+
+    try {
+      if (!verif_Groupe) {
+        return repondre("Cette commande ne fonctionne que dans les groupes.");
+      }
+
+      if (!verif_Admin) {
+        return repondre("Seuls les administrateurs peuvent utiliser cette commande.");
+      }
+
+      const sousCommande = arg[0]?.toLowerCase();
+      const validModes = ['on', 'off'];
+      const validTypes = ['gc', 'pm'];
+
+      const [settings] = await Antidelete.findOrCreate({
+        where: { id: jid },
+        defaults: { id: jid, mode: 'non', type: 'gc' },
+      });
+
+      if (validModes.includes(sousCommande)) {
+        const newMode = sousCommande === 'on' ? 'oui' : 'non';
+        if (settings.mode === newMode) {
+          return repondre(`L'Antidelete est déjà ${sousCommande}`);
+        }
+        settings.mode = newMode;
+        await settings.save();
+        return repondre(`L'Antidelete ${sousCommande === 'on' ? 'activé' : 'désactivé'} avec succès !`);
+      }
+
+      if (validTypes.includes(sousCommande)) {
+        if (settings.mode !== 'oui') {
+          return repondre("Veuillez activer l'antidelete d'abord en utilisant `antidelete on`.");
+        }
+        if (settings.type === sousCommande) {
+          return repondre(`Le type d'antidelete est déjà défini sur ${sousCommande}.`);
+        }
+        settings.type = sousCommande;
+        await settings.save();
+        return repondre(`Le type d'antidelete défini sur ${sousCommande} avec succès !`);
+      }
+
+      return repondre(
+        "Utilisation :\n" +
+        "antidelete on/off : Activer ou désactiver l'antidelete\n" +
+        "antidelete gc/pm : Configurer le type d'antidelete"
+      );
+    } catch (error) {
+      console.error("Erreur lors de la configuration d'antidelete :", error);
+      repondre("Une erreur s'est produite lors de l'exécution de la commande.");
     }
   }
 );
