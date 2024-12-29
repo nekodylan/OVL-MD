@@ -451,6 +451,12 @@ ovl.ev.on('group-participants.update', async (data) => {
 ovl.ev.on("messages.delete", async (deletedMessageData) => {
   try {
     const { keys, jid, all } = deletedMessageData;
+
+    if (!keys && !all) {
+      console.error("Données de suppression inattendues :", deletedMessageData);
+      return;
+    }
+
     const settings = await Antidelete.findOne({ where: { id: jid } });
     if (!settings || settings.mode !== 'oui') return;
 
@@ -458,7 +464,7 @@ ovl.ev.on("messages.delete", async (deletedMessageData) => {
       console.log(`Tous les messages ont été supprimés dans : ${jid}`);
     } else {
       for (const key of keys) {
-        console.log('dlt message');
+        console.log('Message supprimé', key.id);
         const deletedMsg = await ovl.loadMessage(jid, key.id);
 
         if (deletedMsg && deletedMsg.message) {
@@ -497,7 +503,7 @@ ovl.ev.on("messages.delete", async (deletedMessageData) => {
 
 async function sendMessage(settings, jid, content, quotedMsg) {
   try {
-    if (settings.type === 'gc' && !jid.endsWith('@g.us')) {
+    if (settings.type === 'gc' && jid.endsWith('@g.us')) {
       await ovl.sendMessage(jid, content, quotedMsg);
     } else if (settings.type === 'pm') {
       const ownerId = ovl.user.id;
@@ -507,6 +513,7 @@ async function sendMessage(settings, jid, content, quotedMsg) {
     console.error('Erreur lors de l’envoi du message :', error);
   }
 }
+
 // FIN ANTIDELETE        
          
 ovl.ev.on("connection.update", async (con) => {
