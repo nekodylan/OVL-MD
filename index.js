@@ -16,6 +16,7 @@ const { GroupSettings } = require("./DataBase/events");
 const { levels, calculateLevel } = require('./DataBase/levels');
 const { Ranks } = require('./DataBase/rank');
 const { Sudo } = require('./DataBase/sudo');
+const { Antidelete } = require("./DataBase/antidelete");
 
  async function ovlAuth(session) {
     let sessionId;
@@ -26,12 +27,7 @@ const { Sudo } = require('./DataBase/sudo');
         const response = await axios.get('https://pastebin.com/raw/' + sessionId);
         const data = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
         const filePath = path.join(__dirname, 'auth', 'creds.json');
-        if (!fs.existsSync(filePath)) {
-            console.log("Connexion au bot en cours");
-            await fs.writeFileSync(filePath, data, 'utf8'); 
-        } else if (fs.existsSync(filePath) && session !== "ovl") {
             await fs.writeFileSync(filePath, data, 'utf8');
-        }
     } catch (e) {
         console.log("Session invalide: " + e.message || e);
     }
@@ -452,7 +448,7 @@ ovl.ev.on('group-participants.update', async (data) => {
          //Fin group participants update
 
          // Antidelete
-ovl.on("messages.delete", async (deletedMessageData) => {
+ovl.ev.on("messages.delete", async (deletedMessageData) => {
   try {
     const { keys, jid, all } = deletedMessageData;
     const settings = await Antidelete.findOne({ where: { id: jid } });
