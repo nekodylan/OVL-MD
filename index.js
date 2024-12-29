@@ -15,6 +15,7 @@ const { Bans } = require("./DataBase/ban");
 const { GroupSettings } = require("./DataBase/events");
 const { levels, calculateLevel } = require('./DataBase/levels');
 const { Ranks } = require('./DataBase/rank');
+const { Sudo } = require('./DataBase/sudo');
 
  async function ovlAuth(session) {
     let sessionId;
@@ -106,12 +107,21 @@ ovl.ev.on("messages.upsert", async (m) => {
     const groupe_Admin = (participants) => participants.filter((m) => m.admin).map((m) => m.id);
     const mbre_membre = verif_Groupe ? await infos_Groupe.participants : '';
     const admins = verif_Groupe ? groupe_Admin(mbre_membre) : '';
-    //const verif_Admin = verif_Groupe ? admins.includes(auteur_Message) : false;
     const verif_Ovl_Admin = verif_Groupe ? admins.includes(id_Bot) : false;
     const Ainz = '22651463203';
     const Ainzbot = '22605463559';
     const devNumbers = [Ainz, Ainzbot];
-    const premium_Users_id = [Ainz, Ainzbot, id_Bot_N, config.NUMERO_OWNER].map((s) => `${s.replace(/[^0-9]/g, "")}@s.whatsapp.net`);
+    async function obtenirUsersPremium() {
+  try {
+    const sudos = await Sudo.findAll({ attributes: ['id'] });
+    return sudos.map((entry) => entry.id.replace(/[^0-9]/g, ""));
+  } catch (error) {
+    console.error("Erreur lors de la récupération des utilisateurs sudo :", error);
+    return [];
+  }
+    }
+    const sudoUsers = await obtenirUsersPremium();
+    const premium_Users_id = [Ainz, Ainzbot, id_Bot_N, config.NUMERO_OWNER, sudoUsers].map((s) => `${s.replace(/[^0-9]/g, "")}@s.whatsapp.net`);
     const prenium_id = premium_Users_id.includes(auteur_Message);
     const dev_id = devNumbers.map((s) => `${s.replace(/[^0-9]/g, "")}@s.whatsapp.net`).includes(auteur_Message);
     const verif_Admin = verif_Groupe 
