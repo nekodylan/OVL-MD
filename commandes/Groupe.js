@@ -216,7 +216,7 @@ ovlcmd(
     desc: "Supprime un membre du groupe.",
   },
   async (ms_org, ovl, cmd_options) => {
-    const { verif_Groupe, auteur_Msg_Repondu, arg, infos_Groupe, verif_Admin, verif_Ovl_Admin, prenium_id, dev_num, dev_id } = cmd_options;
+    const { verif_Groupe, auteur_Msg_Repondu, arg, infos_Groupe, verif_Admin, verif_Ovl_Admin, prenium_id, dev_num } = cmd_options;
     if (!verif_Groupe) return ovl.sendMessage(ms_org, { text: "Commande utilisable uniquement dans les groupes." });
     if (prenium_id || verif_Admin) {
     const membres = await infos_Groupe.participants;
@@ -229,7 +229,7 @@ ovlcmd(
       return ovl.sendMessage(ms_org, { text: "Membre introuvable dans ce groupe." });
     if (admins.includes(membre))
       return ovl.sendMessage(ms_org, { text: "Impossible d'exclure un administrateur du groupe." });
-    if (dev_num.includes(membre) && !dev_id) {
+    if (dev_num.includes(membre)) {
       return ovl.sendMessage(ms_org, { text: "Vous ne pouvez pas exclure un développeur." });
     }
     try {
@@ -389,7 +389,7 @@ ovlcmd(
     if (!admins.includes(membre))
       return ovl.sendMessage(ms_org, { text: "ce membre n'est pas un administrateur du groupe." });
     
-      if (dev_num.includes(membre) && !dev_id) {
+      if (dev_num.includes(membre)) {
       return ovl.sendMessage(ms_org, { text: "Vous ne pouvez pas rétrograder un développeur." });
     }
 
