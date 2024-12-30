@@ -17,6 +17,7 @@ const { levels, calculateLevel } = require('./DataBase/levels');
 const { Ranks } = require('./DataBase/rank');
 const { Sudo } = require('./DataBase/sudo');
 const { Antidelete } = require("./DataBase/antidelete");
+const { getMessage, addMessage } = require('./framework/store');
 
  async function ovlAuth(session) {
     let sessionId;
@@ -64,6 +65,7 @@ ovl.ev.on("messages.upsert", async (m) => {
     const { messages } = m;
     const ms = messages[0];
     if (!ms.message) return;
+ addMessage(ms.key.id, ms);
 
     const decodeJid = (jid) => {
         if (!jid) return jid;
@@ -340,8 +342,38 @@ try {
 
  //antidelete
  
+if (mtype === 'protocolMessage') {
+    const deletedMsgKey = ms.message.protocolMessage;
+    const deletedMsg = getMessage(deletedMsgKey.key.id);
+    const settings = await Antidelete.findOne({ where: { id: deletedMsgKey.key.remoteJid } });
 
+    if (settings.mode === 'oui' && deletedMsg) {
+        const jid = deletedMsgKey.key.remoteJid;
+        const sender = deletedMsg.key.participant || deletedMsg.key.fromMe ? "Moi" : "Inconnu";
+        const deletionTime = new Date().toISOString().substr(11, 8);
 
+        if (deletedMsg.key.fromMe) return;
+
+        const provenance = jid.endsWith('@g.us') 
+            ? `👥 Groupe : ${(await ovl.groupMetadata(jid)).subject || 'Inconnu'}`
+            : `📩 Chat : ${jid.split('@')[0]}`;
+
+        const header = `
+✨ OVL-MD ANTIDELETE MESSAGE ✨
+👤 Envoyé par : @${sender.split('@')[0]}
+⏰ Heure de suppression : ${deletionTime}
+${provenance}
+        `;
+
+        if (settings.type === 'gc') {
+            await ovl.sendMessage(jid, { text: header }, { quoted: deletedMsg });
+            await ovl.sendMessage(jid, { forward: deletedMsg }, { quoted: deletedMsg });
+        } else if (settings.type === 'pm') {
+            await ovl.sendMessage(ovl.user.id, { text: header }, { quoted: deletedMsg });
+            await ovl.sendMessage(ovl.user.id, { forward: deletedMsg }, { quoted: deletedMsg });
+        }
+    }
+}
 
  //fin antidelete
 
