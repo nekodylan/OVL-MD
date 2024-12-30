@@ -132,7 +132,9 @@ const dev_num = devNumbers
 const verif_Admin = verif_Groupe 
     ? admins.includes(auteur_Message) || premium_Users_id.includes(auteur_Message) 
     : false;
-    
+ function repondre(message) {
+        ovl.sendMessage(ms_org, { text: message }, { quoted: ms });
+ };
     const cmd_options = {
         verif_Groupe,
         mbre_membre,
@@ -157,19 +159,6 @@ const verif_Admin = verif_Groupe
         ms,
         ms_org,
     };
-
- /* console.log("{}=={}= OVL-MD LOG-MESSAGES ={}=={}");
-    if (verif_Groupe) {
-        console.log("Groupe: " + nom_Groupe);
-    }
-    console.log(`Auteur message: ${nom_Auteur_Message}\nNumero: ${auteur_Message.split("@")[0]}`);
-    console.log("Type: " + mtype);
-    console.log("Message:");
-    console.log(texte);
-*/
-    function repondre(message) {
-        ovl.sendMessage(ms_org, { text: message }, { quoted: ms });
-    } 
  
 //Rank messages && Level up
  if (texte && auteur_Message.endsWith("s.whatsapp.net")) {
@@ -349,6 +338,13 @@ try {
 }
 // fin antibot
 
+ //antidelete
+ 
+
+
+
+ //fin antidelete
+
  // quelque fonctions 
  async function user_ban(userId) {
     const ban = await Bans.findOne({ where: { id: userId, type: 'user' } });
@@ -452,71 +448,7 @@ ovl.ev.on('group-participants.update', async (data) => {
          //Fin group participants update
 
          // Antidelete
-ovl.ev.on("messages.delete", async (deletedMessageData) => {
-  try {
-    const { keys, jid, all } = deletedMessageData;
 
-    if (!keys && !all) {
-      console.error("Données de suppression inattendues :", deletedMessageData);
-      return;
-    }
-
-    const settings = await Antidelete.findOne({ where: { id: jid } });
-    if (!settings || settings.mode !== 'oui') return;
-
-    if (all) {
-      console.log(`Tous les messages ont été supprimés dans : ${jid}`);
-    } else {
-      for (const key of keys) {
-        console.log('Message supprimé', key.id);
-        const deletedMsg = await ovl.loadMessage(jid, key.id);
-
-        if (deletedMsg && deletedMsg.message) {
-          const content = deletedMsg.message;
-          const quotedMsg = { quoted: deletedMsg };
-
-          if (content.conversation) {
-            const text = content.conversation || '';
-            await sendMessage(settings, jid, { text }, quotedMsg);
-          } else if (content.imageMessage) {
-            const buffer = await ovl.dl_save_media_ms(deletedMsg);
-            const caption = content.imageMessage.caption || '';
-            await sendMessage(settings, jid, { image: buffer, caption }, quotedMsg);
-          } else if (content.videoMessage) {
-            const buffer = await ovl.dl_save_media_ms(deletedMsg);
-            const caption = content.videoMessage.caption || '';
-            await sendMessage(settings, jid, { video: buffer, caption }, quotedMsg);
-          } else if (content.audioMessage) {
-            const buffer = await ovl.dl_save_media_ms(deletedMsg);
-            await sendMessage(settings, jid, { audio: buffer, mimetype: 'audio/mp4' }, quotedMsg);
-          } else if (content.statusUpdateMessage) {
-            const buffer = await ovl.dl_save_media_ms(deletedMsg);
-            const caption = content.statusUpdateMessage.text || '';
-            await sendMessage(settings, jid, { image: buffer, caption }, quotedMsg);
-          } else {
-            const text = 'Un message de type inconnu a été supprimé.';
-            await sendMessage(settings, jid, { text }, quotedMsg);
-          }
-        }
-      }
-    }
-  } catch (error) {
-    console.error('Erreur lors de la gestion des messages supprimés :', error);
-  }
-});
-
-async function sendMessage(settings, jid, content, quotedMsg) {
-  try {
-    if (settings.type === 'gc' && jid.endsWith('@g.us')) {
-      await ovl.sendMessage(jid, content, quotedMsg);
-    } else if (settings.type === 'pm') {
-      const ownerId = ovl.user.id;
-      await ovl.sendMessage(ownerId, content, quotedMsg);
-    }
-  } catch (error) {
-    console.error('Erreur lors de l’envoi du message :', error);
-  }
-}
 
 // FIN ANTIDELETE        
          
