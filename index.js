@@ -405,6 +405,10 @@ ovl.ev.on('group-participants.update', async (data) => {
 
     const  groupPic = 'https://files.catbox.moe/54ip7g.jpg';
   try {
+   
+   if (!dev_id && ms_org === "120363314687943170@g.us") {
+                return;
+   }
         const groupInfo = await ovl.groupMetadata(data.id);
         const settings = await GroupSettings.findOne({ where: { id: data.id } });
         if (!settings) return;
