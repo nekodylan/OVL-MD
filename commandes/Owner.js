@@ -86,7 +86,7 @@ ovlcmd(
       if (!cible) return repondre("Mentionnez un utilisateur valide à bannir.");
 
       if (dev_num.includes(cible)) {
-      return ovl.sendMessage(ms_org, { text: "Vous ne pouvez pas bannir un développeur." });
+      return ovl.sendMessage(jid, { text: "Vous ne pouvez pas bannir un développeur." });
       }
       const [ban] = await Bans.findOrCreate({
         where: { id: cible },
