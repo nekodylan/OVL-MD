@@ -795,7 +795,7 @@ ovlcmd(
     desc: "Enregistre les contacts de tous les membres du groupe dans un fichier VCF",
   },
   async (ms_org, ovl, cmd_options) => {
-    const { msg_Repondu } = cmd_options;
+    const { verif_Groupe } = cmd_options;
 
     try {
       if (!verif_Groupe) return ovl.sendMessage(ms_org, { text: "Cette commande doit être utilisée dans un groupe." });
