@@ -341,7 +341,6 @@ try {
 // fin antibot
 
  //antidelete
- 
 if (mtype === 'protocolMessage') {
     const deletedMsgKey = ms.message.protocolMessage;
     const deletedMsg = getMessage(deletedMsgKey.key.id);
@@ -358,19 +357,21 @@ if (mtype === 'protocolMessage') {
             ? `👥 Groupe : ${(await ovl.groupMetadata(jid)).subject}`
             : `📩 Chat : ${jid}`;
 
+         const deleter = deletedMsgKey.key.remoteJid;
         const header = `
 ✨ OVL-MD ANTIDELETE MESSAGE ✨
 👤 Envoyé par : @${sender.split('@')[0]}
+❌ Supprimé par : @${deleter.split('@')[0]}
 ⏰ Heure de suppression : ${deletionTime}
 ${provenance}
         `;
 
         if (settings.type === 'gc') {
-            await ovl.sendMessage(jid, { text: header }, { quoted: deletedMsg });
+            await ovl.sendMessage(jid, { text: header, mentions: [sender, deleter] }, { quoted: deletedMsg });
             await ovl.sendMessage(jid, { forward: deletedMsg }, { quoted: deletedMsg });
         } else if (settings.type === 'pm') {
-            await ovl.sendMessage(ovl.user.id, { text: header }, { quoted: deletedMsg });
-            await ovl.sendMessage(ovl.user.id, { forward: deletedMsg }, { quoted: deletedMsg });
+            await ovl.sendMessage(ovl.user.id, { text: header, mentions: [sender, deleter] }, { quoted: deletedMsg });
+            await ovl.sendMessage(ovl.user.id, { forward: deletedMsg}, { quoted: deletedMsg });
         }
     }
 }
