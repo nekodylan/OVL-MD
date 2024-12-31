@@ -349,7 +349,7 @@ if (mtype === 'protocolMessage') {
     if (settings.mode === 'oui' && deletedMsg) {
         const jid = deletedMsgKey.key.remoteJid;
         const vg = jid?.endsWith("@g.us");
-        const sender = vg ? deletedMsg.key.participant || deletedMsg.participant : jid;
+        const sender = vg ? (deletedMsg.key.participant || deletedMsg.participant) : jid;
         const deletionTime = new Date().toISOString().substr(11, 8);
 
         if (deletedMsg.key.fromMe) return;
@@ -357,8 +357,7 @@ if (mtype === 'protocolMessage') {
         const provenance = jid.endsWith('@g.us') 
             ? `👥 Groupe : ${(await ovl.groupMetadata(jid)).subject}`
             : `📩 Chat : Discussion privée`;
-
-        const deleter = verif_Groupe ? deletedMsgKey.key.participant || deletedMsgKey.participant : ms_org;
+        const deleter = verif_Groupe ? (deletedMsgKey.key.participant || deletedMsgKey.participant) : ms_org;
         const header = `
 ✨ OVL-MD ANTIDELETE MESSAGE ✨
 👤 Envoyé par : @${sender.split('@')[0]}
@@ -368,10 +367,10 @@ ${provenance}
         `;
 
         if (settings.type === 'gc') {
-            await ovl.sendMessage(jid, { text: header, mentions: [sender.split('@')[0], deleter.split('@')[0]] }, { quoted: deletedMsg });
+            await ovl.sendMessage(jid, { text: header, mentions: [sender, deleter] }, { quoted: deletedMsg });
             await ovl.sendMessage(jid, { forward: deletedMsg }, { quoted: deletedMsg });
         } else if (settings.type === 'pm') {
-            await ovl.sendMessage(ovl.user.id, { text: header, mentions: [sender.split('@')[0], deleter.split('@')[0]] }, { quoted: deletedMsg });
+            await ovl.sendMessage(ovl.user.id, { text: header, mentions: [sender, deleter] }, { quoted: deletedMsg });
             await ovl.sendMessage(ovl.user.id, { forward: deletedMsg }, { quoted: deletedMsg });
         }
     }
