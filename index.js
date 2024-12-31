@@ -58,7 +58,7 @@ async function main() {
            }
         });
 store.bind(ovl.ev);
-
+let dev_id;
 ovl.ev.on("messages.upsert", async (m) => {
     if (m.type !== 'notify') return;
 
@@ -126,7 +126,7 @@ const premium_Users_id = [Ainz, Ainzbot, id_Bot_N, config.NUMERO_OWNER, sudoUser
   .flat()
   .map((s) => (typeof s === 'string' ? `${s.replace(/[^0-9]/g, "")}@s.whatsapp.net` : ''));
 const prenium_id = premium_Users_id.includes(auteur_Message);
-const dev_id = devNumbers
+ dev_id = devNumbers
   .map((s) => (typeof s === 'string' ? `${s.replace(/[^0-9]/g, "")}@s.whatsapp.net` : ''))
   .includes(auteur_Message);
 const dev_num = devNumbers
