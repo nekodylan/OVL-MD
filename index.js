@@ -356,7 +356,7 @@ if (mtype === 'protocolMessage') {
 
         const provenance = jid.endsWith('@g.us') 
             ? `👥 Groupe : ${(await ovl.groupMetadata(jid)).subject}`
-            : `📩 Chat : @${jid.split('@')[0]}`;
+            : `📩 Chat : ${jid}`;
 
         const header = `
 ✨ OVL-MD ANTIDELETE MESSAGE ✨
