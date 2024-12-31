@@ -3,7 +3,6 @@ const { Sticker, StickerTypes } = require('wa-sticker-formatter');
 const { Antilink } = require("../DataBase/antilink");
 const { Antibot } = require("../DataBase/antibot");
 const { GroupSettings } = require("../DataBase/events");
-const { Antidelete } = require("../DataBase/antidelete");
 const fs = require("fs");
 
 ovlcmd(
@@ -954,68 +953,6 @@ ovlcmd(
     } catch (error) {
       console.error("Erreur lors de la configuration d'antibot :", error);
       return repondre("❌ Une erreur s'est produite lors de l'exécution de la commande.");
-    }
-  }
-);
-
-ovlcmd(
-  {
-    nom_cmd: "antidelete",
-    classe: "Groupe",
-    react: "🗑️",
-    desc: "Active ou configure l'antidelete pour les groupes",
-  },
-  async (jid, ovl, cmd_options) => {
-    const { repondre, arg, verif_Groupe, verif_Admin } = cmd_options;
-
-    try {
-      if (!verif_Groupe) {
-        return repondre("Cette commande ne fonctionne que dans les groupes.");
-      }
-
-      if (!verif_Admin) {
-        return repondre("Seuls les administrateurs peuvent utiliser cette commande.");
-      }
-
-      const sousCommande = arg[0]?.toLowerCase();
-      const validModes = ['on', 'off'];
-      const validTypes = ['gc', 'pm'];
-
-      const [settings] = await Antidelete.findOrCreate({
-        where: { id: jid },
-        defaults: { id: jid, mode: 'non', type: 'gc' },
-      });
-
-      if (validModes.includes(sousCommande)) {
-        const newMode = sousCommande === 'on' ? 'oui' : 'non';
-        if (settings.mode === newMode) {
-          return repondre(`L'Antidelete est déjà ${sousCommande}`);
-        }
-        settings.mode = newMode;
-        await settings.save();
-        return repondre(`L'Antidelete ${sousCommande === 'on' ? 'activé' : 'désactivé'} avec succès !`);
-      }
-
-      if (validTypes.includes(sousCommande)) {
-        if (settings.mode !== 'oui') {
-          return repondre("Veuillez activer l'antidelete d'abord en utilisant `antidelete on`.");
-        }
-        if (settings.type === sousCommande) {
-          return repondre(`Le type d'antidelete est déjà défini sur ${sousCommande}.`);
-        }
-        settings.type = sousCommande;
-        await settings.save();
-        return repondre(`Le type d'antidelete défini sur ${sousCommande} avec succès !`);
-      }
-
-      return repondre(
-        "Utilisation :\n" +
-        "antidelete on/off : Activer ou désactiver l'antidelete\n" +
-        "antidelete gc/pm : Configurer le type d'antidelete"
-      );
-    } catch (error) {
-      console.error("Erreur lors de la configuration d'antidelete :", error);
-      repondre("Une erreur s'est produite lors de l'exécution de la commande.");
     }
   }
 );
