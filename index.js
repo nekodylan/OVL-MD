@@ -355,7 +355,7 @@ if (mtype === 'protocolMessage') {
         if (deletedMsg.key.fromMe) return;
 
         const provenance = jid.endsWith('@g.us') 
-            ? `👥 Groupe : ${(await ovl.groupMetadata(jid)).subject`
+            ? `👥 Groupe : ${(await ovl.groupMetadata(jid)).subject}`
             : `📩 Chat : @${jid.split('@')[0]}`;
 
         const header = `
