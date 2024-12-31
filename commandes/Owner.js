@@ -5,6 +5,7 @@ const { Sudo } = require('../DataBase/sudo');
 const config = require('../set');
 const axios = require("axios");
 const { Sticker, StickerTypes } = require("wa-sticker-formatter");
+const { Antidelete } = require("../DataBase/antidelete");
 
 ovlcmd(
   {
@@ -335,4 +336,62 @@ ovlcmd(
             repondre("Une erreur s'est produite lors du téléchargement des stickers.");
         }
     }
+);
+
+ovlcmd(
+  {
+    nom_cmd: "antidelete",
+    classe: "Groupe",
+    react: "🗑️",
+    desc: "Active ou configure l'antidelete",
+  },
+  async (jid, ovl, cmd_options) => {
+    const { repondre, arg, prenium_id } = cmd_options;
+
+    try {
+       if (!prenium_id) {
+        return repondre("Seuls les utilisateurs prenium peuvent utiliser cette commande.");
+      }
+
+      const sousCommande = arg[0]?.toLowerCase();
+      const validModes = ['on', 'off'];
+      const validTypes = ['gc', 'pm'];
+
+      const [settings] = await Antidelete.findOrCreate({
+        where: { id: 'global' },
+        defaults: { id: 'global', mode: 'non', type: 'pm' },
+      });
+
+      if (validModes.includes(sousCommande)) {
+        const newMode = sousCommande === 'on' ? 'oui' : 'non';
+        if (settings.mode === newMode) {
+          return repondre(`L'Antidelete est déjà ${sousCommande}`);
+        }
+        settings.mode = newMode;
+        await settings.save();
+        return repondre(`L'Antidelete ${sousCommande === 'on' ? 'activé' : 'désactivé'} avec succès !`);
+      }
+
+      if (validTypes.includes(sousCommande)) {
+        if (settings.mode !== 'oui') {
+          return repondre("Veuillez activer l'antidelete d'abord en utilisant `antidelete on`.");
+        }
+        if (settings.type === sousCommande) {
+          return repondre(`Le type d'antidelete est déjà défini sur ${sousCommande}.`);
+        }
+        settings.type = sousCommande;
+        await settings.save();
+        return repondre(`Le type d'antidelete défini sur ${sousCommande} avec succès !`);
+      }
+
+      return repondre(
+        "Utilisation :\n" +
+        "antidelete on/off : Activer ou désactiver l'antidelete\n" +
+        "antidelete gc/pm : Configurer le type d'antidelete"
+      );
+    } catch (error) {
+      console.error("Erreur lors de la configuration d'antidelete :", error);
+      repondre("Une erreur s'est produite lors de l'exécution de la commande.");
+    }
+  }
 );
