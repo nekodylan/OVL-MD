@@ -357,7 +357,7 @@ if (mtype === 'protocolMessage') {
             ? `👥 Groupe : ${(await ovl.groupMetadata(jid)).subject}`
             : `📩 Chat : ${jid}`;
 
-         const deleter = deletedMsgKey.key.remoteJid;
+         const deleter = deletedMsgKey.key.participant;
         const header = `
 ✨ OVL-MD ANTIDELETE MESSAGE ✨
 👤 Envoyé par : @${sender.split('@')[0]}
