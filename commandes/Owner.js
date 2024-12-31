@@ -95,7 +95,10 @@ ovlcmd(
       });
 
       if (!ban._options.isNewRecord) return repondre("Cet utilisateur est déjà banni !");
-      return repondre(`Utilisateur @${cible.split('@')[0]} banni avec succès.`);
+      return ovl.sendMessage(ms_org, { 
+        text: `Utilisateur @${cible.split('@')[0]} banni avec succès.`, 
+        mentions: [cible]
+      });
     } catch (error) {
       console.error("Erreur lors de l'exécution de la commande ban :", error);
       return repondre("Une erreur s'est produite.");
@@ -125,7 +128,10 @@ ovlcmd(
 
       const suppression = await Bans.destroy({ where: { id: cible, type: "user" } });
       if (suppression === 0) return repondre("Cet utilisateur n'est pas banni.");
-      return repondre(`Utilisateur @${cible.split('@')[0]} débanni avec succès.`);
+      return ovl.sendMessage(ms_org, { 
+        text: `Utilisateur @${cible.split('@')[0]} débanni avec succès.`, 
+        mentions: [cible]
+      });
     } catch (error) {
       console.error("Erreur lors de l'exécution de la commande debannir :", error);
       return repondre("Une erreur s'est produite.");
@@ -159,7 +165,7 @@ ovlcmd(
       });
 
       if (!ban._options.isNewRecord) return repondre("Ce groupe est déjà banni !");
-      return repondre(`Groupe @${cible} banni avec succès.`);
+      return repondre(`Groupe banni avec succès.`);
     } catch (error) {
       console.error("Erreur lors de l'exécution de la commande bangroup :", error);
       return repondre("Une erreur s'est produite.");
@@ -189,7 +195,7 @@ ovlcmd(
 
       const suppression = await Bans.destroy({ where: { id: cible, type: "group" } });
       if (suppression === 0) return repondre("Ce groupe n'est pas banni.");
-      return repondre(`Groupe @${cible} débanni avec succès.`);
+      return repondre(`Groupe débanni avec succès.`);
     } catch (error) {
       console.error("Erreur lors de l'exécution de la commande debangroup :", error);
       return repondre("Une erreur s'est produite.");
@@ -225,11 +231,17 @@ ovlcmd(
       });
 
       if (!user._options.isNewRecord) {
-        return repondre(`L'utilisateur @${cible.split('@')[0]} est déjà un utilisateur premium.`);
+        return ovl.sendMessage(ms_org, { 
+        text: `L'utilisateur @${cible.split('@')[0]} est déjà un utilisateur premium.`, 
+        mentions: [cible]
+      });
       }
 
-      return repondre(`Utilisateur @${cible.split('@')[0]} ajouté avec succès en tant qu'utilisateur premium.`);
-    } catch (error) {
+      return ovl.sendMessage(ms_org, { 
+        text: `Utilisateur @${cible.split('@')[0]} ajouté avec succès en tant qu'utilisateur premium.`, 
+        mentions: [cible]
+      });
+      } catch (error) {
       console.error("Erreur lors de l'exécution de la commande setsudo :", error);
       return repondre("Une erreur est survenue lors de l'ajout de l'utilisateur en premium.");
     }
@@ -251,12 +263,12 @@ ovlcmd(
     }
 
     try {
-      
       const sudoUsers = await Sudo.findAll();
 
       if (!sudoUsers.length) {
         return repondre("Aucun utilisateur premium n'est actuellement enregistré.");
       }
+
       const userList = sudoUsers
         .map((user, index) => `🔹 *${index + 1}.* @${user.id.split('@')[0]}`)
         .join("\n");
@@ -296,10 +308,16 @@ ovlcmd(
       const deletion = await Sudo.destroy({ where: { id: cible } });
 
       if (deletion === 0) {
-        return repondre(`L'utilisateur @${cible.split('@')[0]} n'est pas un utilisateur premium.`);
+        return ovl.sendMessage(ms_org, { 
+        text: `L'utilisateur @${cible.split('@')[0]} n'est pas un utilisateur premium.`, 
+        mentions: [cible]
+      });
       }
 
-      return repondre(`Utilisateur @${cible.split('@')[0]} supprimé avec succès de la liste premium.`);
+        return ovl.sendMessage(ms_org, { 
+        text: `Utilisateur @${cible.split('@')[0]} supprimé avec succès de la liste premium.`, 
+        mentions: [cible]
+      });
     } catch (error) {
       console.error("Erreur lors de l'exécution de la commande delsudo :", error);
       return repondre("Une erreur est survenue lors de la suppression de l'utilisateur de la liste premium.");
