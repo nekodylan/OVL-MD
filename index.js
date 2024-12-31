@@ -345,18 +345,18 @@ try {
 if (mtype === 'protocolMessage') {
     const deletedMsgKey = ms.message.protocolMessage;
     const deletedMsg = getMessage(deletedMsgKey.key.id);
-    const settings = await Antidelete.findOne({ where: { id: deletedMsgKey.key.remoteJid } });
+    const settings = await Antidelete.findOne({ where: { id: 'global' } });
 
     if (settings.mode === 'oui' && deletedMsg) {
         const jid = deletedMsgKey.key.remoteJid;
-        const sender = deletedMsg.key.participant || deletedMsg.key.fromMe ? "Moi" : "Inconnu";
+        const sender = deletedMsg.key.participant;
         const deletionTime = new Date().toISOString().substr(11, 8);
 
         if (deletedMsg.key.fromMe) return;
 
         const provenance = jid.endsWith('@g.us') 
-            ? `👥 Groupe : ${(await ovl.groupMetadata(jid)).subject || 'Inconnu'}`
-            : `📩 Chat : ${jid.split('@')[0]}`;
+            ? `👥 Groupe : ${(await ovl.groupMetadata(jid)).subject`
+            : `📩 Chat : @${jid.split('@')[0]}`;
 
         const header = `
 ✨ OVL-MD ANTIDELETE MESSAGE ✨
