@@ -348,7 +348,8 @@ if (mtype === 'protocolMessage') {
 
     if (settings.mode === 'oui' && deletedMsg) {
         const jid = deletedMsgKey.key.remoteJid;
-        const sender = deletedMsg.key.participant || deletedMsg.participant : jid;
+        const vg = jid?.endsWith("@g.us");
+        const sender = vg ? deletedMsg.key.participant || deletedMsg.participant : jid;
         const deletionTime = new Date().toISOString().substr(11, 8);
 
         if (deletedMsg.key.fromMe) return;
@@ -356,8 +357,7 @@ if (mtype === 'protocolMessage') {
         const provenance = jid.endsWith('@g.us') 
             ? `👥 Groupe : ${(await ovl.groupMetadata(jid)).subject}`
             : `📩 Chat : Discussion privée`;
-
-         const deleter = deletedMsgKey.key.participant || deletedMsgKey.participant : ms_org;
+        const deleter = verif_Groupe ? deletedMsgKey.key.participant || deletedMsgKey.participant : ms_org;
         const header = `
 ✨ OVL-MD ANTIDELETE MESSAGE ✨
 👤 Envoyé par : @${sender.split('@')[0]}
