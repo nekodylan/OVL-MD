@@ -95,7 +95,7 @@ ovlcmd(
       });
 
       if (!ban._options.isNewRecord) return repondre("Cet utilisateur est déjà banni !");
-      return ovl.sendMessage(ms_org, { 
+      return ovl.sendMessage(jid, { 
         text: `Utilisateur @${cible.split('@')[0]} banni avec succès.`, 
         mentions: [cible]
       });
@@ -128,7 +128,7 @@ ovlcmd(
 
       const suppression = await Bans.destroy({ where: { id: cible, type: "user" } });
       if (suppression === 0) return repondre("Cet utilisateur n'est pas banni.");
-      return ovl.sendMessage(ms_org, { 
+      return ovl.sendMessage(jid, { 
         text: `Utilisateur @${cible.split('@')[0]} débanni avec succès.`, 
         mentions: [cible]
       });
