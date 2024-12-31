@@ -238,6 +238,41 @@ ovlcmd(
 
 ovlcmd(
   {
+    nom_cmd: "sudolist",
+    classe: "Owner",
+    react: "📋",
+    desc: "Affiche la liste des utilisateurs premium.",
+  },
+  async (ms_org, ovl, cmd_options) => {
+    const { repondre, prenium_id } = cmd_options;
+
+    if (!prenium_id) {
+      return ovl.sendMessage(ms_org, { text: "Vous n'avez pas la permission d'exécuter cette commande." });
+    }
+
+    try {
+      
+      const sudoUsers = await Sudo.findAll();
+
+      if (!sudoUsers.length) {
+        return repondre("Aucun utilisateur premium n'est actuellement enregistré.");
+      }
+      const userList = sudoUsers
+        .map((user, index) => `🔹 *${index + 1}.* @${user.id.split('@')[0]}`)
+        .join("\n");
+
+      const message = `✨ *Liste des utilisateurs Premium* ✨\n\n*Total*: ${sudoUsers.length}\n\n${userList}`;
+
+      return ovl.sendMessage(ms_org, { text: message, mentions: sudoUsers.map(user => user.id) });
+    } catch (error) {
+      console.error("Erreur lors de l'exécution de la commande sudolist :", error);
+      return repondre("Une erreur est survenue lors de l'affichage de la liste des utilisateurs premium.");
+    }
+  }
+);
+
+ovlcmd(
+  {
     nom_cmd: "delsudo",
     classe: "Owner",
     react: "❌",
