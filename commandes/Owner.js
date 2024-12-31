@@ -376,7 +376,7 @@ ovlcmd(
 ovlcmd(
   {
     nom_cmd: "antidelete",
-    classe: "Groupe",
+    classe: "Owner",
     react: "🗑️",
     desc: "Active ou configure l'antidelete",
   },
