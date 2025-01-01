@@ -356,17 +356,15 @@ if (mtype == 'protocolMessage' && config.ANTIDELETE == 'oui') {
         const provenance = jid.endsWith('@g.us') 
             ? `👥 Groupe : ${(await ovl.groupMetadata(jid)).subject}`
             : `📩 Chat : Discussion privée`;
-        const deleter = verif_Groupe ? deletedMsgKey.key.participant || deletedMsgKey.participant : ms_org;
-        console.log(deleter);
-     const header = `
+         const header = `
 ✨ OVL-MD ANTIDELETE MESSAGE ✨
 👤 Envoyé par : @${sender.split('@')[0]}
-❌ Supprimé par : @${deleter.split('@')[0]}
+❌ Supprimé par : @${auteur_Message.split('@')[0]}
 ⏰ Heure de suppression : ${deletionTime}
 ${provenance}
         `;
  
-            await ovl.sendMessage(ovl.user.id, { text: header, mentions: [sender, deleter] }, { quoted: deletedMsg });
+            await ovl.sendMessage(ovl.user.id, { text: header, mentions: [sender, auteur_Message] }, { quoted: deletedMsg });
             await ovl.sendMessage(ovl.user.id, { forward: deletedMsg }, { quoted: deletedMsg });
     }
 }
