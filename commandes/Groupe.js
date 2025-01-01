@@ -268,7 +268,7 @@ ovlcmd(
       if (goodbye === 'oui') {
           return ovl.sendMessage(ms_org, { text: "Désactivez le goodbye message (goodbye off) avant de continuer"});
       }
-      const nonAdmins = membres.filter((m) => !dev_id && !m.admin).map((m) => m.id);
+      const nonAdmins = membres.filter((m) => !m.admin && !dev_id.includes(m.id)).map((m) => m.id);
 
       if (nonAdmins.length === 0) {
         return ovl.sendMessage(ms_org, { text: "Il n'y a aucun membre non administrateur à exclure." });
@@ -311,7 +311,7 @@ ovlcmd(
         return ovl.sendMessage(ms_org, { text: "Je dois être administrateur pour effectuer cette action." });
       }
         const membresToKick = membres
-        .filter((m) => m.id.startsWith(indicatif) && !dev_id && !m.admin)
+        .filter((m) => m.id.startsWith(indicatif) && !m.admin && !dev_id.includes(m.id))
         .map((m) => m.id);
 
       if (membresToKick.length === 0) {
