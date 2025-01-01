@@ -340,6 +340,7 @@ try {
 // fin antibot
 
  //antidelete
+ try {
 if (mtype == 'protocolMessage' && config.ANTIDELETE == ('pm' || 'gc' || 'status' || 'all')) {
     const deletedMsgKey = ms.message.protocolMessage;
     const deletedMsg = getMessage(deletedMsgKey.key.id);
@@ -381,7 +382,9 @@ ${provenance}
     }
 }
 }
-
+ } catch (err) {
+  console.error('une erreur est survenu', err);
+ }
  //fin antidelete
 
  // quelque fonctions 
