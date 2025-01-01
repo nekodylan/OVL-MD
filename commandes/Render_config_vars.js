@@ -4,12 +4,12 @@ const { ovlcmd } = require("../framework/ovlcmd");
 const RENDER_API_KEY = "rnd_Q18yV3cJokoiFcimQThJh8ELEICs";
 const SERVICE_ID = "srv-ctqdsvjqf0us73em5fkg";
 
-async function manageEnvVar(action, key, value = null) {
-  const headers = {
-    Authorization: `Bearer ${RENDER_API_KEY}`,
-    "Content-Type": "application/json",
-  };
+const headers = {
+  Authorization: `Bearer ${RENDER_API_KEY}`,
+  "Content-Type": "application/json",
+};
 
+async function manageEnvVar(action, key, value = null) {
   try {
     if (action === "setvar") {
       await axios.post(
@@ -18,6 +18,22 @@ async function manageEnvVar(action, key, value = null) {
         { headers }
       );
       return `✨ *Variable définie avec succès !*\n📌 *Clé :* \`${key}\`\n📥 *Valeur :* \`${value}\``;
+    } else if (action === "addvar") {
+      const response = await axios.get(
+        `https://api.render.com/v1/services/${SERVICE_ID}/env-vars`,
+        { headers }
+      );
+
+      if (response.data.find((v) => v.envVar.key === key)) {
+        return `❌ *Erreur :* La variable \`${key}\` existe déjà. Utilisez \`setvar\` pour mettre à jour.`;
+      }
+
+      await axios.post(
+        `https://api.render.com/v1/services/${SERVICE_ID}/env-vars`,
+        { key, value },
+        { headers }
+      );
+      return `✨ *Nouvelle variable ajoutée avec succès !*\n📌 *Clé :* \`${key}\`\n📥 *Valeur :* \`${value}\``;
     } else if (action === "delvar") {
       await axios.delete(
         `https://api.render.com/v1/services/${SERVICE_ID}/env-vars/${key}`,
@@ -34,14 +50,14 @@ async function manageEnvVar(action, key, value = null) {
         if (response.data.length === 0) return "📭 *Aucune variable disponible.*";
 
         const allVars = response.data
-          .map((v) => `📌 *${v.key}* : \`${v.value}\``)
+          .map((v) => `📌 *${v.envVar.key}* : \`${v.envVar.value}\``)
           .join("\n");
         return `✨ *Liste des variables d'environnement :*\n\n${allVars}`;
       }
 
-      const envVar = response.data.find((v) => v.key === key);
+      const envVar = response.data.find((v) => v.envVar.key === key);
       return envVar
-        ? `📌 *${key}* : \`${envVar.value}\``
+        ? `📌 *${key}* : \`${envVar.envVar.value}\``
         : `*Variable introuvable :* \`${key}\``;
     }
   } catch (error) {
@@ -68,6 +84,33 @@ ovlcmd(
     const [key, ...valueParts] = arg.join(" ").split("=");
     const value = valueParts.join("=").trim();
     const result = await manageEnvVar("setvar", key.trim(), value);
+
+    return ovl.sendMessage(ms_org, {
+      text: result,
+      quoted: ms,
+    });
+  }
+);
+
+ovlcmd(
+  {
+    nom_cmd: "addvar",
+    classe: "Render",
+    desc: "Ajoute une nouvelle variable d'environnement si elle n'existe pas déjà.",
+  },
+  async (ms_org, ovl, cmd_options) => {
+    const { arg, ms } = cmd_options;
+
+    if (!arg[0] || !arg.includes("=")) {
+      return ovl.sendMessage(ms_org, {
+        text: "*Utilisation :* `addvar clé = valeur`",
+        quoted: ms,
+      });
+    }
+
+    const [key, ...valueParts] = arg.join(" ").split("=");
+    const value = valueParts.join("=").trim();
+    const result = await manageEnvVar("addvar", key.trim(), value);
 
     return ovl.sendMessage(ms_org, {
       text: result,
