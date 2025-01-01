@@ -2,7 +2,7 @@ const axios = require("axios");
 const { ovlcmd, cmd } = require("../framework/ovlcmd");
 const RENDER_API_BASE = "https://api.render.com/v1/services";
 const RENDER_API_KEY = "rnd_Q18yV3cJokoiFcimQThJh8ELEICs"; // Remplace par ta clé API
-const SERVICE_ID = "YOUR_SERVICE_ID"; // L'ID de ton service Render
+const SERVICE_ID = "srv-ctqdsvjqf0us73em5fkg"; // L'ID de ton service Render
 
 async function manageEnvVar(action, key, value = null) {
   const headers = {
