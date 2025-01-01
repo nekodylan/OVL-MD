@@ -340,7 +340,7 @@ try {
 // fin antibot
 
  //antidelete
-if (mtype == 'protocolMessage' && config.ANTIDELETE == 'oui') {
+if (mtype == 'protocolMessage' && config.ANTIDELETE == ('pm' || 'gc' || 'status' || 'all')) {
     const deletedMsgKey = ms.message.protocolMessage;
     const deletedMsg = getMessage(deletedMsgKey.key.id);
     if (deletedMsg) {
@@ -351,22 +351,35 @@ if (mtype == 'protocolMessage' && config.ANTIDELETE == 'oui') {
         : jid;
         const deletionTime = new Date().toISOString().substr(11, 8);
 
-        if (deletedMsg.key.fromMe) return;
+        if (!deletedMsg.key.fromMe) {
 
         const provenance = jid.endsWith('@g.us') 
-            ? `👥 Groupe : ${(await ovl.groupMetadata(jid)).subject}`
-            : `📩 Chat : Discussion privée`;
-         const header = `
+            ? `👥 Groupe : @${jid.split('@')[0]}`
+            : `📩 Chat : @${jid.split('@')[0]}`;
+
+        const header = `
 ✨ OVL-MD ANTIDELETE MESSAGE ✨
 👤 Envoyé par : @${sender.split('@')[0]}
 ❌ Supprimé par : @${auteur_Message.split('@')[0]}
 ⏰ Heure de suppression : ${deletionTime}
 ${provenance}
         `;
- 
-            await ovl.sendMessage(ovl.user.id, { text: header, mentions: [sender, auteur_Message] }, { quoted: deletedMsg });
+
+        if (config.ANTIDELETE == 'gc' && jid.endsWith('@g.us')) {
+            await ovl.sendMessage(ovl.user.id, { text: header, mentions: [sender, auteur_Message, jid] }, { quoted: deletedMsg });
             await ovl.sendMessage(ovl.user.id, { forward: deletedMsg }, { quoted: deletedMsg });
+        } else if (config.ANTIDELETE == 'pm' && !jid.endsWith('@g.us')) {
+            await ovl.sendMessage(ovl.user.id, { text: header, mentions: [sender, auteur_Message, jid] }, { quoted: deletedMsg });
+            await ovl.sendMessage(ovl.user.id, { forward: deletedMsg }, { quoted: deletedMsg });
+        } else if (config.ANTIDELETE == 'status' && ms_org.endsWith('status@broadcast')) {
+            await ovl.sendMessage(ovl.user.id, { text: header, mentions: [sender, auteur_Message, jid] }, { quoted: deletedMsg });
+            await ovl.sendMessage(ovl.user.id, { forward: deletedMsg }, { quoted: deletedMsg });
+        } else if (config.ANTIDELETE == 'all') {
+            await ovl.sendMessage(ovl.user.id, { text: header, mentions: [sender, auteur_Message, jid] }, { quoted: deletedMsg });
+            await ovl.sendMessage(ovl.user.id, { forward: deletedMsg }, { quoted: deletedMsg });
+        }
     }
+}
 }
 
  //fin antidelete
