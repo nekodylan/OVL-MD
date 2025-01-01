@@ -341,50 +341,50 @@ try {
 
  //antidelete
  try {
-if (mtype == 'protocolMessage' && config.ANTIDELETE == ('pm' || 'gc' || 'status' || 'all')) {
-    const deletedMsgKey = ms.message.protocolMessage;
-    const deletedMsg = getMessage(deletedMsgKey.key.id);
-    if (deletedMsg) {
-        const jid = deletedMsg.key.remoteJid;
-        const vg = jid?.endsWith("@g.us");
-        const sender = vg 
-        ? deletedMsg.key.participant || deletedMsg.participant
-        : jid;
-        const deletionTime = new Date().toISOString().substr(11, 8);
+    if (mtype == 'protocolMessage' && ['pm', 'gc', 'status', 'all'].includes(config.ANTIDELETE)) {
+        const deletedMsgKey = ms.message.protocolMessage;
+        const deletedMsg = getMessage(deletedMsgKey.key.id);
+        if (deletedMsg) {
+            const jid = deletedMsg.key.remoteJid;
+            const vg = jid?.endsWith("@g.us");
+            const sender = vg 
+                ? deletedMsg.key.participant || deletedMsg.participant
+                : jid;
+            const deletionTime = new Date().toISOString().substr(11, 8);
 
-        if (!deletedMsg.key.fromMe) {
+            if (!deletedMsg.key.fromMe) {
+                const provenance = jid.endsWith('@g.us') 
+                    ? `👥 Groupe : @${jid.split('@')[0]}`
+                    : `📩 Chat : @${jid.split('@')[0]}`;
 
-        const provenance = jid.endsWith('@g.us') 
-            ? `👥 Groupe : @${jid.split('@')[0]}`
-            : `📩 Chat : @${jid.split('@')[0]}`;
-
-        const header = `
+                const header = `
 ✨ OVL-MD ANTIDELETE MESSAGE ✨
 👤 Envoyé par : @${sender.split('@')[0]}
 ❌ Supprimé par : @${auteur_Message.split('@')[0]}
 ⏰ Heure de suppression : ${deletionTime}
 ${provenance}
-        `;
+                `;
 
-        if (config.ANTIDELETE == 'gc' && jid.endsWith('@g.us')) {
-            await ovl.sendMessage(ovl.user.id, { text: header, mentions: [sender, auteur_Message, jid] }, { quoted: deletedMsg });
-            await ovl.sendMessage(ovl.user.id, { forward: deletedMsg }, { quoted: deletedMsg });
-        } else if (config.ANTIDELETE == 'pm' && jid.endsWith('@s.whatsapp.net')) {
-            await ovl.sendMessage(ovl.user.id, { text: header, mentions: [sender, auteur_Message, jid] }, { quoted: deletedMsg });
-            await ovl.sendMessage(ovl.user.id, { forward: deletedMsg }, { quoted: deletedMsg });
-        } else if (config.ANTIDELETE == 'status' && ms_org.endsWith('status@broadcast')) {
-            await ovl.sendMessage(ovl.user.id, { text: header, mentions: [sender, auteur_Message, jid] }, { quoted: deletedMsg });
-            await ovl.sendMessage(ovl.user.id, { forward: deletedMsg }, { quoted: deletedMsg });
-        } else if (config.ANTIDELETE == 'all') {
-            await ovl.sendMessage(ovl.user.id, { text: header, mentions: [sender, auteur_Message, jid] }, { quoted: deletedMsg });
-            await ovl.sendMessage(ovl.user.id, { forward: deletedMsg }, { quoted: deletedMsg });
+                if (config.ANTIDELETE == 'gc' && jid.endsWith('@g.us')) {
+                    await ovl.sendMessage(ovl.user.id, { text: header, mentions: [sender, auteur_Message, jid] }, { quoted: deletedMsg });
+                    await ovl.sendMessage(ovl.user.id, { forward: deletedMsg }, { quoted: deletedMsg });
+                } else if (config.ANTIDELETE == 'pm' && jid.endsWith('@s.whatsapp.net')) {
+                    await ovl.sendMessage(ovl.user.id, { text: header, mentions: [sender, auteur_Message, jid] }, { quoted: deletedMsg });
+                    await ovl.sendMessage(ovl.user.id, { forward: deletedMsg }, { quoted: deletedMsg });
+                } else if (config.ANTIDELETE == 'status' && jid.endsWith('status@broadcast')) {
+                    await ovl.sendMessage(ovl.user.id, { text: header, mentions: [sender, auteur_Message, jid] }, { quoted: deletedMsg });
+                    await ovl.sendMessage(ovl.user.id, { forward: deletedMsg }, { quoted: deletedMsg });
+                } else if (config.ANTIDELETE == 'all') {
+                    await ovl.sendMessage(ovl.user.id, { text: header, mentions: [sender, auteur_Message, jid] }, { quoted: deletedMsg });
+                    await ovl.sendMessage(ovl.user.id, { forward: deletedMsg }, { quoted: deletedMsg });
+                }
+            }
         }
     }
+} catch (err) {
+    console.error('Une erreur est survenue', err);
 }
-}
- } catch (err) {
-  console.error('une erreur est survenu', err);
- }
+
  //fin antidelete
 
  // quelque fonctions 
