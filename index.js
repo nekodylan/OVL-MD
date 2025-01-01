@@ -357,7 +357,8 @@ if (mtype == 'protocolMessage' && config.ANTIDELETE == 'oui') {
             ? `👥 Groupe : ${(await ovl.groupMetadata(jid)).subject}`
             : `📩 Chat : Discussion privée`;
         const deleter = verif_Groupe ? deletedMsgKey.key.participant || deletedMsgKey.participant : ms_org;
-        const header = `
+        console.log(deleter);
+     const header = `
 ✨ OVL-MD ANTIDELETE MESSAGE ✨
 👤 Envoyé par : @${sender.split('@')[0]}
 ❌ Supprimé par : @${deleter.split('@')[0]}
