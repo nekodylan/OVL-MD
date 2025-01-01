@@ -61,6 +61,7 @@ async function manageEnvVar(action, key, value = null) {
         : `*Variable introuvable :* \`${key}\``;
     }
   } catch (error) {
+    console.error(error);
     return `**Erreur :** ${error.response?.data?.message || error.message}`;
   }
 }
