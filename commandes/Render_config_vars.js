@@ -12,41 +12,42 @@ async function manageEnvVar(action, key, value = null) {
 
   try {
     if (action === "setvar") {
-      await axios.post(
+      const response = await axios.post(
         `${RENDER_API_BASE}/${SERVICE_ID}/env-vars`,
         { key, value },
         { headers }
       );
-      return `✨ **Variable définie avec succès !**\n📌 **Clé :** \`${key}\`\n📥 **Valeur :** \`${value}\``;
+      return `✨ *Variable définie avec succès !*\n📌 *Clé :* \`${key}\`\n📥 *Valeur :* \`${value}\``;
     } else if (action === "delvar") {
       await axios.delete(
         `${RENDER_API_BASE}/${SERVICE_ID}/env-vars/${key}`,
         { headers }
       );
-      return `✅ **Variable supprimée avec succès !**\n📌 **Clé :** \`${key}\``;
+      return `✅ *Variable supprimée avec succès !*\n📌 *Clé :* \`${key}\``;
     } else if (action === "getvar") {
       const response = await axios.get(
         `${RENDER_API_BASE}/${SERVICE_ID}/env-vars`,
         { headers }
       );
       if (key === "all") {
-        if (response.data.length === 0) return "📭 **Aucune variable disponible.**";
+        if (response.data.length === 0) return "📭 *Aucune variable disponible.*";
 
         const allVars = response.data
-          .map((v) => `📌 **${v.key}** : \`${v.value}\``)
+          .map((v) => `📌 *${v.key}* : \`${v.value}\``)
           .join("\n");
-        return `✨ **Liste des variables d'environnement :**\n\n${allVars}`;
+        return `✨ *Liste des variables d'environnement :*\n\n${allVars}`;
       }
       const envVar = response.data.find((v) => v.key === key);
       return envVar
-        ? `📌 **${key}** : \`${envVar.value}\``
-        : ` *Variable introuvable :* \`${key}\``;
+        ? `📌 *${key}* : \`${envVar.value}\``
+        : `*Variable introuvable :* \`${key}\``;
     }
   } catch (error) {
     console.error("Erreur lors de la gestion des variables :", error.response?.data || error.message);
-    return ` **Erreur:* ${error.message}`;
+    return `**Erreur :** ${error.message}`;
   }
 }
+
 
 ovlcmd(
   {
