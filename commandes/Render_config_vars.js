@@ -1,8 +1,8 @@
 const axios = require("axios");
-const { ovlcmd, cmd } = require("../framework/ovlcmd");
-const RENDER_API_BASE = "https://api.render.com/v1/services";
-const RENDER_API_KEY = "rnd_Q18yV3cJokoiFcimQThJh8ELEICs"; // Remplace par ta clé API
-const SERVICE_ID = "srv-ctqdsvjqf0us73em5fkg"; // L'ID de ton service Render
+const { ovlcmd } = require("../framework/ovlcmd");
+
+const RENDER_API_KEY = "rnd_Q18yV3cJokoiFcimQThJh8ELEICs";
+const SERVICE_ID = "srv-ctqdsvjqf0us73em5fkg";
 
 async function manageEnvVar(action, key, value = null) {
   const headers = {
@@ -12,23 +12,24 @@ async function manageEnvVar(action, key, value = null) {
 
   try {
     if (action === "setvar") {
-      const response = await axios.post(
-        `${RENDER_API_BASE}/${SERVICE_ID}/env-vars`,
+      await axios.post(
+        `https://api.render.com/v1/services/${SERVICE_ID}/env-vars`,
         { key, value },
         { headers }
       );
       return `✨ *Variable définie avec succès !*\n📌 *Clé :* \`${key}\`\n📥 *Valeur :* \`${value}\``;
     } else if (action === "delvar") {
       await axios.delete(
-        `${RENDER_API_BASE}/${SERVICE_ID}/env-vars/${key}`,
+        `https://api.render.com/v1/services/${SERVICE_ID}/env-vars/${key}`,
         { headers }
       );
       return `✅ *Variable supprimée avec succès !*\n📌 *Clé :* \`${key}\``;
     } else if (action === "getvar") {
       const response = await axios.get(
-        `${RENDER_API_BASE}/${SERVICE_ID}/env-vars`,
+        `https://api.render.com/v1/services/${SERVICE_ID}/env-vars`,
         { headers }
       );
+
       if (key === "all") {
         if (response.data.length === 0) return "📭 *Aucune variable disponible.*";
 
@@ -37,17 +38,16 @@ async function manageEnvVar(action, key, value = null) {
           .join("\n");
         return `✨ *Liste des variables d'environnement :*\n\n${allVars}`;
       }
+
       const envVar = response.data.find((v) => v.key === key);
       return envVar
         ? `📌 *${key}* : \`${envVar.value}\``
         : `*Variable introuvable :* \`${key}\``;
     }
   } catch (error) {
-    console.error("Erreur lors de la gestion des variables :", error.response?.data || error.message);
-    return `**Erreur :** ${error.message}`;
+    return `**Erreur :** ${error.response?.data?.message || error.message}`;
   }
 }
-
 
 ovlcmd(
   {
@@ -84,14 +84,15 @@ ovlcmd(
   },
   async (ms_org, ovl, cmd_options) => {
     const { arg, ms } = cmd_options;
-if (!arg[0]) {
+
+    if (!arg[0]) {
       return ovl.sendMessage(ms_org, {
-        text: "*Utilisation :* `getvar clé` pour obtenir les données d'une seul variables et `getvar all` pour obtenir toutes les variables",
+        text: "*Utilisation :* `getvar clé` pour une variable ou `getvar all` pour toutes les variables.",
         quoted: ms,
       });
     }
 
-    const key = arg[0] || "all";
+    const key = arg[0];
     const result = await manageEnvVar("getvar", key);
 
     return ovl.sendMessage(ms_org, {
