@@ -368,7 +368,7 @@ ${provenance}
         if (config.ANTIDELETE == 'gc' && jid.endsWith('@g.us')) {
             await ovl.sendMessage(ovl.user.id, { text: header, mentions: [sender, auteur_Message, jid] }, { quoted: deletedMsg });
             await ovl.sendMessage(ovl.user.id, { forward: deletedMsg }, { quoted: deletedMsg });
-        } else if (config.ANTIDELETE == 'pm' && !jid.endsWith('@g.us')) {
+        } else if (config.ANTIDELETE == 'pm' && jid.endsWith('@s.whatsapp.net')) {
             await ovl.sendMessage(ovl.user.id, { text: header, mentions: [sender, auteur_Message, jid] }, { quoted: deletedMsg });
             await ovl.sendMessage(ovl.user.id, { forward: deletedMsg }, { quoted: deletedMsg });
         } else if (config.ANTIDELETE == 'status' && ms_org.endsWith('status@broadcast')) {
