@@ -101,8 +101,8 @@ ovlcmd(
     try {
       const renderCommit = await getRenderCommit();
       const gitCommit = await getGitCommit();
-
-      if (renderCommit === gitCommit) {
+    console.log(renderCommit, gitCommit);
+      if (renderCommit == gitCommit) {
         return ovl.sendMessage(ms_org, {
           text: "Le bot est déjà à jour",
           quoted: ms,
