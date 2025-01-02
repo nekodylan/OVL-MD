@@ -69,7 +69,7 @@ async function manageEnvVar(action, key, value = null) {
 ovlcmd(
   {
     nom_cmd: "setvar",
-    classe: "Render",
+    classe: "Render_config_vars",
     desc: "Définit ou met à jour une variable d'environnement sur Render.",
   },
   async (ms_org, ovl, cmd_options) => {
@@ -96,7 +96,7 @@ ovlcmd(
 ovlcmd(
   {
     nom_cmd: "addvar",
-    classe: "Render",
+    classe: "Render_config_vars",
     desc: "Ajoute une nouvelle variable d'environnement si elle n'existe pas déjà.",
   },
   async (ms_org, ovl, cmd_options) => {
@@ -123,7 +123,7 @@ ovlcmd(
 ovlcmd(
   {
     nom_cmd: "getvar",
-    classe: "Render",
+    classe: "Render_config_vars",
     desc: "Récupère la valeur d'une variable d'environnement sur Render.",
   },
   async (ms_org, ovl, cmd_options) => {
@@ -149,7 +149,7 @@ ovlcmd(
 ovlcmd(
   {
     nom_cmd: "delvar",
-    classe: "Render",
+    classe: "Render_config_vars",
     desc: "Supprime une variable d'environnement sur Render.",
   },
   async (ms_org, ovl, cmd_options) => {
