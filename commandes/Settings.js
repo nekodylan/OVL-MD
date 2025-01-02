@@ -81,10 +81,10 @@ async function restartRenderService() {
 
   try {
     await axios.post(
-      `https://api.render.com/v1/services/${SERVICE_ID}/restart`,
-      {},
-      { headers }
-    );
+        `https://api.render.com/v1/services/${SERVICE_ID}/deploys`,
+        {},
+        { headers }
+      );
     return "✅ Le service a été redémarré avec succès !";
   } catch (error) {
     console.error(error);
