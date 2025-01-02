@@ -11,17 +11,13 @@ const headers = {
 
 async function manageEnvVar(action, key, value = null) {
   try {
-    if (!key || key.trim() === "") {
-      return "*Erreur :* La clé de la variable d'environnement est vide.";
-    }
-
     const response = await axios.get(
       `https://api.render.com/v1/services/${SERVICE_ID}/env-vars`,
       { headers }
     );
     const envVars = response.data;
 
-    if (action === "setvar" || action === "addvar") {
+    if (action === "setvar") {
       const existingVar = envVars.find((v) => v.envVar.key === key);
 
       if (existingVar) {
@@ -32,7 +28,7 @@ async function manageEnvVar(action, key, value = null) {
 
       await axios.put(
         `https://api.render.com/v1/services/${SERVICE_ID}/env-vars`,
-        envVars,
+        { envVars: envVars },
         { headers }
       );
       return `✨ *Variable définie avec succès !*\n📌 *Clé :* \`${key}\`\n📥 *Valeur :* \`${value}\``;
