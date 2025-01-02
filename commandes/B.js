@@ -39,7 +39,9 @@ async function getRenderCommit() {
     }
     
     const lastDeploy = response.data[0];
-    return lastDeploy ? lastDeploy.commitSha : null;
+    const lastCommit = lastDeploy.deploy.commit;
+    
+    return lastCommit ? lastCommit.id : null;
   } catch (error) {
     console.error(error);
     throw new Error("Impossible de récupérer le dernier commit déployé sur Render.");
