@@ -12,4 +12,6 @@ module.exports = {
   STICKER_AUTHOR_NAME: process.env.STICKER_AUTHOR_NAME || "OVL-MD",
   DATABASE: process.env.DATABASE || "postgresql://postgres.qnjvgxwyncnsbpfxwrbq:ovlmdmdpasse@aws-0-eu-central-1.pooler.supabase.com:6543/postgres",
   ANTIDELETE: process.env.ANTIDELETE || "non",
+  RENDER_API_KEY: process.env.RENDER_API_KEY,
+  SERVICE_ID: process.env.SERVICE_ID
 };
