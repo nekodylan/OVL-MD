@@ -92,33 +92,6 @@ ovlcmd(
 
 ovlcmd(
   {
-    nom_cmd: "addvar",
-    classe: "Render_config_vars",
-    desc: "Ajoute une nouvelle variable d'environnement si elle n'existe pas déjà.",
-  },
-  async (ms_org, ovl, cmd_options) => {
-    const { arg, ms } = cmd_options;
-
-    if (!arg[0] || !arg.includes("=")) {
-      return ovl.sendMessage(ms_org, {
-        text: "*Utilisation :* `addvar clé = valeur`",
-        quoted: ms,
-      });
-    }
-
-    const [key, ...valueParts] = arg.join(" ").split("=");
-    const value = valueParts.join("=").trim();
-    const result = await manageEnvVar("addvar", key.trim(), value);
-
-    return ovl.sendMessage(ms_org, {
-      text: result,
-      quoted: ms,
-    });
-  }
-);
-
-ovlcmd(
-  {
     nom_cmd: "getvar",
     classe: "Render_config_vars",
     desc: "Récupère la valeur d'une variable d'environnement sur Render.",
