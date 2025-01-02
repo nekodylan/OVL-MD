@@ -76,7 +76,7 @@ async function manageEnvVar(action, key, value = null) {
   }
 }
 
-async function getRenderCommit() {
+/*async function getRenderCommit() {
   try {
     const response = await axios.get(
       `https://api.render.com/v1/services/${SERVICE_ID}/deploys`,
@@ -134,7 +134,7 @@ async function deployRender() {
     throw new Error("Échec du lancement du déploiement sur Render.");
   }
 }
-
+*/
 ovlcmd(
   {
     nom_cmd: "setvar",
@@ -262,7 +262,7 @@ ovlcmd(
     return;
   }
 );
-
+/*
 ovlcmd(
   {
     nom_cmd: "maj",
@@ -312,3 +312,4 @@ ovlcmd(
   }
 );
 
+*/
