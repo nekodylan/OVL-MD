@@ -11,29 +11,14 @@ const headers = {
 
 async function manageEnvVar(action, key, value = null) {
   try {
-    if (action === "setvar") {
-      await axios.put(
+    if (action === "setvar" || action === "addvar") {
+      const data = [{ key, value }];
+      await axios.post(
         `https://api.render.com/v1/services/${SERVICE_ID}/env-vars`,
-        { key, value },
+        data,
         { headers }
       );
       return `✨ *Variable définie avec succès !*\n📌 *Clé :* \`${key}\`\n📥 *Valeur :* \`${value}\``;
-    } else if (action === "addvar") {
-      const response = await axios.get(
-        `https://api.render.com/v1/services/${SERVICE_ID}/env-vars`,
-        { headers }
-      );
-
-      if (response.data.find((v) => v.envVar.key === key)) {
-        return `❌ *Erreur :* La variable \`${key}\` existe déjà. Utilisez \`setvar\` pour mettre à jour.`;
-      }
-
-      await axios.put(
-        `https://api.render.com/v1/services/${SERVICE_ID}/env-vars`,
-        { key, value },
-        { headers }
-      );
-      return `✨ *Nouvelle variable ajoutée avec succès !*\n📌 *Clé :* \`${key}\`\n📥 *Valeur :* \`${value}\``;
     } else if (action === "delvar") {
       await axios.delete(
         `https://api.render.com/v1/services/${SERVICE_ID}/env-vars/${key}`,
@@ -50,14 +35,14 @@ async function manageEnvVar(action, key, value = null) {
         if (response.data.length === 0) return "📭 *Aucune variable disponible.*";
 
         const allVars = response.data
-          .map((v) => `📌 *${v.envVar.key}* : \`${v.envVar.value}\``)
+          .map((v) => `📌 *${v.key}* : \`${v.value}\``)
           .join("\n");
         return `✨ *Liste des variables d'environnement :*\n\n${allVars}`;
       }
 
-      const envVar = response.data.find((v) => v.envVar.key === key);
+      const envVar = response.data.find((v) => v.key === key);
       return envVar
-        ? `📌 *${key}* : \`${envVar.envVar.value}\``
+        ? `📌 *${key}* : \`${envVar.value}\``
         : `*Variable introuvable :* \`${key}\``;
     }
   } catch (error) {
@@ -65,6 +50,7 @@ async function manageEnvVar(action, key, value = null) {
     return `**Erreur :** ${error.response?.data?.message || error.message}`;
   }
 }
+
 
 ovlcmd(
   {
