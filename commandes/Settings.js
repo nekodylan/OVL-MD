@@ -170,11 +170,12 @@ ovlcmd(
     const value = valueParts.join("=").trim();
     const result = await manageEnvVar("setvar", key.trim(), value);
 
-    return ovl.sendMessage(ms_org, {
+     ovl.sendMessage(ms_org, {
       text: result,
       quoted: ms,
     });
     exec("pm2 restart all");
+    return;
   }
 );
 
@@ -253,11 +254,12 @@ ovlcmd(
     const key = arg[0];
     const result = await manageEnvVar("delvar", key);
 
-    return ovl.sendMessage(ms_org, {
+     ovl.sendMessage(ms_org, {
       text: result,
       quoted: ms,
     });
     exec("pm2 restart all");
+    return;
   }
 );
 
