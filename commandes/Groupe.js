@@ -252,7 +252,7 @@ ovlcmd(
     desc: "Supprime tous les membres non administrateurs du groupe.",
   },
   async (ms_org, ovl, cmd_options) => {
-    const { verif_Groupe, verif_Admin, verif_Ovl_Admin, infos_Groupe, prenium_id, dev_id } = cmd_options;
+    const { verif_Groupe, verif_Admin, verif_Ovl_Admin, infos_Groupe, prenium_id, dev_num } = cmd_options;
     
     if (!verif_Groupe) return ovl.sendMessage(ms_org, { text: "Commande utilisable uniquement dans les groupes." });
     
@@ -268,7 +268,7 @@ ovlcmd(
       if (goodbye === 'oui') {
           return ovl.sendMessage(ms_org, { text: "Désactivez le goodbye message (goodbye off) avant de continuer"});
       }
-      const nonAdmins = membres.filter((m) => !m.admin && !dev_id.includes(m.id)).map((m) => m.id);
+      const nonAdmins = membres.filter((m) => !m.admin && !dev_num.includes(m.id)).map((m) => m.id);
 
       if (nonAdmins.length === 0) {
         return ovl.sendMessage(ms_org, { text: "Il n'y a aucun membre non administrateur à exclure." });
@@ -295,7 +295,7 @@ ovlcmd(
     desc: "Supprime tous les membres non administrateurs dont le JID commence par un indicatif spécifique.",
   },
   async (ms_org, ovl, cmd_options) => {
-    const { verif_Groupe, verif_Admin, verif_Ovl_Admin, infos_Groupe, prenium_id, arg, dev_id } = cmd_options;
+    const { verif_Groupe, verif_Admin, verif_Ovl_Admin, infos_Groupe, prenium_id, arg, dev_num } = cmd_options;
     
     if (!verif_Groupe) 
       return ovl.sendMessage(ms_org, { text: "Commande utilisable uniquement dans les groupes." });
@@ -311,7 +311,7 @@ ovlcmd(
         return ovl.sendMessage(ms_org, { text: "Je dois être administrateur pour effectuer cette action." });
       }
         const membresToKick = membres
-        .filter((m) => m.id.startsWith(indicatif) && !m.admin && !dev_id.includes(m.id))
+        .filter((m) => m.id.startsWith(indicatif) && !m.admin && !dev_num.includes(m.id))
         .map((m) => m.id);
 
       if (membresToKick.length === 0) {
