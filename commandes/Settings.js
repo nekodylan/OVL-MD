@@ -11,46 +11,57 @@ const headers = {
 
 async function manageEnvVar(action, key, value = null) {
   try {
+    const response = await axios.get(
+      `https://api.render.com/v1/services/${SERVICE_ID}/env-vars`,
+      { headers }
+    );
+    const envVars = response.data;
+
     if (action === "setvar" || action === "addvar") {
-      const data = [{ key, value }];
+      const existingVar = envVars.find((v) => v.envVar.key === key);
+
+      if (existingVar) {
+        existingVar.envVar.value = value;
+      } else {
+        envVars.push({ envVar: { key, value } });
+      }
+
       await axios.put(
         `https://api.render.com/v1/services/${SERVICE_ID}/env-vars`,
-        data,
+        envVars,
         { headers }
       );
       return `✨ *Variable définie avec succès !*\n📌 *Clé :* \`${key}\`\n📥 *Valeur :* \`${value}\``;
+
     } else if (action === "delvar") {
-      await axios.delete(
-        `https://api.render.com/v1/services/${SERVICE_ID}/env-vars/${key}`,
+      const updatedEnvVars = envVars.filter((v) => v.envVar.key !== key);
+
+      await axios.put(
+        `https://api.render.com/v1/services/${SERVICE_ID}/env-vars`,
+        updatedEnvVars,
         { headers }
       );
       return `✅ *Variable supprimée avec succès !*\n📌 *Clé :* \`${key}\``;
     } else if (action === "getvar") {
-      const response = await axios.get(
-        `https://api.render.com/v1/services/${SERVICE_ID}/env-vars`,
-        { headers }
-      );
-
       if (key === "all") {
-        if (response.data.length === 0) return "📭 *Aucune variable disponible.*";
+        if (envVars.length === 0) return "📭 *Aucune variable disponible.*";
 
-        const allVars = response.data
-          .map((v) => `📌 *${v.key}* : \`${v.value}\``)
+        const allVars = envVars
+          .map((v) => `📌 *${v.envVar.key}* : \`${v.envVar.value}\``)
           .join("\n");
         return `✨ *Liste des variables d'environnement :*\n\n${allVars}`;
       }
 
-      const envVar = response.data.find((v) => v.key === key);
+      const envVar = envVars.find((v) => v.envVar.key === key);
       return envVar
         ? `📌 *${key}* : \`${envVar.value}\``
         : `*Variable introuvable :* \`${key}\``;
     }
   } catch (error) {
     console.error(error);
-    return `**Erreur :** ${error.response?.data?.message || error.message}`;
+    return `*Erreur :* ${error.response?.data?.message || error.message}`;
   }
 }
-
 
 ovlcmd(
   {
