@@ -13,7 +13,7 @@ async function manageEnvVar(action, key, value = null) {
   try {
     if (action === "setvar" || action === "addvar") {
       const data = [{ key, value }];
-      await axios.post(
+      await axios.put(
         `https://api.render.com/v1/services/${SERVICE_ID}/env-vars`,
         data,
         { headers }
