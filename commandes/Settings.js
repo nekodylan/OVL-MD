@@ -92,6 +92,60 @@ async function restartRenderService() {
   }
 }
 
+async function getRenderCommit() {
+  try {
+    const response = await axios.get(
+      `https://api.render.com/v1/services/${SERVICE_ID}/deploys`,
+      { headers }
+    );
+    
+    if (!response.data || response.data.length === 0) {
+      throw new Error("Aucun déploiement trouvé sur Render.");
+    }
+    
+    const lastDeploy = response.data[0];
+    const lastCommit = lastDeploy.deploy.commit;
+    
+    return lastCommit ? lastCommit.id : null;
+  } catch (error) {
+    console.error(error);
+    throw new Error("Impossible de récupérer le dernier commit déployé sur Render.");
+  }
+}
+
+async function getGitCommit() {
+  try {
+    const response = await axios.get(
+      `https://api.github.com/repos/Ainz-O-G/OVL-Md/commits`,
+      { headers: { Accept: "application/vnd.github.v3+json" } }
+    );
+
+    if (!response.data || response.data.length === 0) {
+      throw new Error("No commits found for the repository.");
+    }
+
+    const lastCommit = response.data[0];
+    return lastCommit.sha;
+  } catch (error) {
+    console.error(error);
+    throw new Error("Unable to fetch the last commit from GitHub.");
+  }
+}
+
+async function deployRender() {
+  try {
+    await axios.post(
+      `https://api.render.com/v1/services/${SERVICE_ID}/deploys`,
+      {},
+      { headers }
+    );
+    return "✅ Déploiement lancé avec succès....";
+  } catch (error) {
+    console.error(error);
+    throw new Error("Échec du lancement du déploiement sur Render.");
+  }
+}
+
 ovlcmd(
   {
     nom_cmd: "setvar",
@@ -210,5 +264,54 @@ ovlcmd(
       quoted: ms,
     });
     return;
+  }
+);
+
+ovlcmd(
+  {
+    nom_cmd: "update",
+    classe: "Render_config",
+    desc: "Vérifie et déploie la dernière version de l'application sur Render.",
+  },
+  async (ms_org, ovl, cmd_options) => {
+    const { arg, ms, prenium_id } = cmd_options;
+
+    if (!prenium_id) {
+      return ovl.sendMessage(ms_org, {
+        text: "Cette commande est réservée aux utilisateurs premium",
+        quoted: ms,
+      });
+    }
+
+    if (!RENDER_API_KEY || !SERVICE_ID) {
+      return ovl.sendMessage(ms_org, {
+        text: "Erreur : Les informations de configuration pour Render (API Key et Service ID) ne sont pas définies. Merci de les ajouter.",
+        quoted: ms,
+      });
+    }
+
+    try {
+      const renderCommit = await getRenderCommit();
+      const gitCommit = await getGitCommit();
+    console.log(renderCommit, gitCommit);
+      if (renderCommit == gitCommit) {
+        return ovl.sendMessage(ms_org, {
+          text: "Le bot est déjà à jour",
+          quoted: ms,
+        });
+      } else {
+        const deployResult = await deployRender();
+        return ovl.sendMessage(ms_org, {
+          text: deployResult,
+          quoted: ms,
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      return ovl.sendMessage(ms_org, {
+        text: `*Erreur* : ${error.message}`,
+        quoted: ms,
+      });
+    }
   }
 );
