@@ -28,17 +28,16 @@ async function manageEnvVar(action, key, value = null) {
 
       await axios.put(
         `https://api.render.com/v1/services/${SERVICE_ID}/env-vars`,
-        { envVars: envVars },
+        { envVars },
         { headers }
       );
       return `✨ *Variable définie avec succès !*\n📌 *Clé :* \`${key}\`\n📥 *Valeur :* \`${value}\``;
-
     } else if (action === "delvar") {
       const updatedEnvVars = envVars.filter((v) => v.envVar.key !== key);
 
       await axios.put(
         `https://api.render.com/v1/services/${SERVICE_ID}/env-vars`,
-        updatedEnvVars,
+        { envVars: updatedEnvVars },
         { headers }
       );
       return `✅ *Variable supprimée avec succès !*\n📌 *Clé :* \`${key}\``;
@@ -54,8 +53,10 @@ async function manageEnvVar(action, key, value = null) {
 
       const envVar = envVars.find((v) => v.envVar.key === key);
       return envVar
-        ? `📌 *${key}* : \`${envVar.value}\``
+        ? `📌 *${key}* : \`${envVar.envVar.value}\``
         : `*Variable introuvable :* \`${key}\``;
+    } else {
+      return "*Action invalide spécifiée.*";
     }
   } catch (error) {
     console.error(error);
