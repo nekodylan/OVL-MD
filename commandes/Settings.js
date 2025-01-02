@@ -1,15 +1,27 @@
 const axios = require("axios");
 const { ovlcmd } = require("../framework/ovlcmd");
+const { exec } = require("child_process");
+const config = require('../set');
 
-const RENDER_API_KEY = "rnd_Q18yV3cJokoiFcimQThJh8ELEICs";
-const SERVICE_ID = "srv-ctqdsvjqf0us73em5fkg";
+const RENDER_API_KEY = config.RENDER_API_KEY;
+const SERVICE_ID = config.SERVICE_ID;
 
 const headers = {
   Authorization: `Bearer ${RENDER_API_KEY}`,
   "Content-Type": "application/json",
 };
 
+function checkConfig() {
+  if (!RENDER_API_KEY || !SERVICE_ID) {
+    return "*Erreur :* Les variables `RENDER_API_KEY` et `SERVICE_ID` doivent être définies dans la configuration.";
+  }
+  return null;
+}
+
 async function manageEnvVar(action, key, value = null) {
+  const configError = checkConfig();
+  if (configError) return configError;
+
   try {
     const response = await axios.get(
       `https://api.render.com/v1/services/${SERVICE_ID}/env-vars`,
@@ -64,7 +76,6 @@ async function manageEnvVar(action, key, value = null) {
   }
 }
 
-
 ovlcmd(
   {
     nom_cmd: "setvar",
@@ -72,7 +83,22 @@ ovlcmd(
     desc: "Définit ou met à jour une variable d'environnement sur Render.",
   },
   async (ms_org, ovl, cmd_options) => {
-    const { arg, ms } = cmd_options;
+    const { arg, ms, prenium_id } = cmd_options;
+
+    if (!prenium_id) {
+      return ovl.sendMessage(ms_org, {
+        text: "Cette commande est réservée aux utilisateurs premium",
+        quoted: ms,
+      });
+    }
+
+    const configError = checkConfig();
+    if (configError) {
+      return ovl.sendMessage(ms_org, {
+        text: configError,
+        quoted: ms,
+      });
+    }
 
     if (!arg[0] || !arg.includes("=")) {
       return ovl.sendMessage(ms_org, {
@@ -89,6 +115,7 @@ ovlcmd(
       text: result,
       quoted: ms,
     });
+    exec("pm2 restart all");
   }
 );
 
@@ -99,11 +126,26 @@ ovlcmd(
     desc: "Récupère la valeur d'une variable d'environnement sur Render.",
   },
   async (ms_org, ovl, cmd_options) => {
-    const { arg, ms } = cmd_options;
+    const { arg, ms, prenium_id } = cmd_options;
+
+    if (!prenium_id) {
+      return ovl.sendMessage(ms_org, {
+        text: "Cette commande est réservée aux utilisateurs premium",
+        quoted: ms,
+      });
+    }
+
+    const configError = checkConfig();
+    if (configError) {
+      return ovl.sendMessage(ms_org, {
+        text: configError,
+        quoted: ms,
+      });
+    }
 
     if (!arg[0]) {
       return ovl.sendMessage(ms_org, {
-        text: "*Utilisation :* `getvar clé` pour une variable ou `getvar all` pour toutes les variables.",
+        text: "*Utilisation :* `delvar clé`",
         quoted: ms,
       });
     }
@@ -125,7 +167,22 @@ ovlcmd(
     desc: "Supprime une variable d'environnement sur Render.",
   },
   async (ms_org, ovl, cmd_options) => {
-    const { arg, ms } = cmd_options;
+    const { arg, ms, prenium_id } = cmd_options;
+
+    if (!prenium_id) {
+      return ovl.sendMessage(ms_org, {
+        text: "Cette commande est réservée aux utilisateurs premium",
+        quoted: ms,
+      });
+    }
+
+    const configError = checkConfig();
+    if (configError) {
+      return ovl.sendMessage(ms_org, {
+        text: configError,
+        quoted: ms,
+      });
+    }
 
     if (!arg[0]) {
       return ovl.sendMessage(ms_org, {
@@ -141,5 +198,6 @@ ovlcmd(
       text: result,
       quoted: ms,
     });
+    exec("pm2 restart all");
   }
 );
