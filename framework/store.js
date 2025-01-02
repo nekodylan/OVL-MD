@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const storeFilePath = path.resolve(__dirname, 'store_msg.json');
-const MAX_STORE_SIZE_MB = 56;
+const MAX_STORE_SIZE_MB = 5;
 
 function checkAndResetStore() {
     try {
