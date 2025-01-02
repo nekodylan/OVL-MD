@@ -14,7 +14,7 @@ async function manageEnvVar(action, key, value = null) {
     if (action === "setvar") {
       await axios.post(
         `https://api.render.com/v1/services/${SERVICE_ID}/env-vars`,
-        { key, value },
+        { "key": key, "value": value },
         { headers }
       );
       return `✨ *Variable définie avec succès !*\n📌 *Clé :* \`${key}\`\n📥 *Valeur :* \`${value}\``;
@@ -30,7 +30,7 @@ async function manageEnvVar(action, key, value = null) {
 
       await axios.post(
         `https://api.render.com/v1/services/${SERVICE_ID}/env-vars`,
-        { key, value },
+        { "key": key, "value": value },
         { headers }
       );
       return `✨ *Nouvelle variable ajoutée avec succès !*\n📌 *Clé :* \`${key}\`\n📥 *Valeur :* \`${value}\``;
