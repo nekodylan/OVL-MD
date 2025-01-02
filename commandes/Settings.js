@@ -11,6 +11,10 @@ const headers = {
 
 async function manageEnvVar(action, key, value = null) {
   try {
+    if (!key || key.trim() === "") {
+      return "*Erreur :* La clé de la variable d'environnement est vide.";
+    }
+
     const response = await axios.get(
       `https://api.render.com/v1/services/${SERVICE_ID}/env-vars`,
       { headers }
