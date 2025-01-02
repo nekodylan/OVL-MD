@@ -92,7 +92,16 @@ async function getRenderCommit() {
 
 async function getGitCommit() {
   try {
-    const { stdout } = await execPromise("git log -1 --format=%H");
+    const { stdout, stderr } = await execPromise("git log -1 --format=%H");
+    
+    if (stderr) {
+      throw new Error(`Git error: ${stderr}`);
+    }
+    
+    if (!stdout) {
+      throw new Error("No commit hash returned.");
+    }
+
     return stdout.trim();
   } catch (error) {
     console.error(error);
