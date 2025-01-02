@@ -15,54 +15,55 @@ async function manageEnvVar(action, key, value = null) {
       `https://api.render.com/v1/services/${SERVICE_ID}/env-vars`,
       { headers }
     );
-    const envVars = response.data;
+    let envVars = response.data.map((v) => ({ key: v.envVar.key, value: v.envVar.value }));
 
     if (action === "setvar") {
-      const existingVar = envVars.find((v) => v.envVar.key === key);
+      const existingVar = envVars.find((v) => v.key === key);
 
       if (existingVar) {
-        existingVar.envVar.value = value;
+        existingVar.value = value;
       } else {
-        envVars.push({ envVar: { key, value } });
+        envVars.push({ key, value });
       }
 
       await axios.put(
         `https://api.render.com/v1/services/${SERVICE_ID}/env-vars`,
-        { envVars },
+        envVars,
         { headers }
       );
       return `✨ *Variable définie avec succès !*\n📌 *Clé :* \`${key}\`\n📥 *Valeur :* \`${value}\``;
+
     } else if (action === "delvar") {
-      const updatedEnvVars = envVars.filter((v) => v.envVar.key !== key);
+      envVars = envVars.filter((v) => v.key !== key);
 
       await axios.put(
         `https://api.render.com/v1/services/${SERVICE_ID}/env-vars`,
-        { envVars: updatedEnvVars },
+        envVars,
         { headers }
       );
       return `✅ *Variable supprimée avec succès !*\n📌 *Clé :* \`${key}\``;
+
     } else if (action === "getvar") {
       if (key === "all") {
         if (envVars.length === 0) return "📭 *Aucune variable disponible.*";
 
         const allVars = envVars
-          .map((v) => `📌 *${v.envVar.key}* : \`${v.envVar.value}\``)
+          .map((v) => `📌 *${v.key}* : \`${v.value}\``)
           .join("\n");
         return `✨ *Liste des variables d'environnement :*\n\n${allVars}`;
       }
 
-      const envVar = envVars.find((v) => v.envVar.key === key);
+      const envVar = envVars.find((v) => v.key === key);
       return envVar
-        ? `📌 *${key}* : \`${envVar.envVar.value}\``
+        ? `📌 *${key}* : \`${envVar.value}\``
         : `*Variable introuvable :* \`${key}\``;
-    } else {
-      return "*Action invalide spécifiée.*";
     }
   } catch (error) {
     console.error(error);
     return `*Erreur :* ${error.response?.data?.message || error.message}`;
   }
 }
+
 
 ovlcmd(
   {
