@@ -12,9 +12,9 @@ const headers = {
 async function manageEnvVar(action, key, value = null) {
   try {
     if (action === "setvar") {
-      await axios.post(
+      await axios.put(
         `https://api.render.com/v1/services/${SERVICE_ID}/env-vars`,
-        { "key": key, "value": value },
+        { key, value },
         { headers }
       );
       return `✨ *Variable définie avec succès !*\n📌 *Clé :* \`${key}\`\n📥 *Valeur :* \`${value}\``;
@@ -28,9 +28,9 @@ async function manageEnvVar(action, key, value = null) {
         return `❌ *Erreur :* La variable \`${key}\` existe déjà. Utilisez \`setvar\` pour mettre à jour.`;
       }
 
-      await axios.post(
+      await axios.put(
         `https://api.render.com/v1/services/${SERVICE_ID}/env-vars`,
-        { "key": key, "value": value },
+        { key, value },
         { headers }
       );
       return `✨ *Nouvelle variable ajoutée avec succès !*\n📌 *Clé :* \`${key}\`\n📥 *Valeur :* \`${value}\``;
