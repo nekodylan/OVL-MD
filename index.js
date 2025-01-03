@@ -95,7 +95,7 @@ ovl.ev.on("messages.upsert", async (m) => {
     const msg_Repondu = ms.message.extendedTextMessage?.contextInfo?.quotedMessage;
     const auteur_Msg_Repondu = decodeJid(ms.message.extendedTextMessage?.contextInfo?.participant);
     const mr = ms.message.extendedTextMessage?.contextInfo?.mentionedJid;
-    const auteur_Message = verif_Groupe ? ms.key.participant || ms.participant : ms_org;
+    const auteur_Message = verif_Groupe ? (ms.key.participant || ms.participant) : ms_org;
     const membre_Groupe = verif_Groupe ? ms.key.participant : '';
     const nom_Auteur_Message = ms.pushName;
     const arg = texte ? texte.trim().split(/ +/).slice(1) : null;
@@ -348,7 +348,7 @@ try {
             const jid = deletedMsg.key.remoteJid;
             const vg = jid?.endsWith("@g.us");
             const sender = vg 
-                ? deletedMsg.key.participant || deletedMsg.participant
+                ? (deletedMsg.key.participant || deletedMsg.participant)
                 : jid;
             const deletionTime = new Date().toISOString().substr(11, 8);
 
@@ -402,7 +402,7 @@ async function groupe_ban(groupId) {
         
         if (cd) {
              try {
-                if (config.MODE !== 'public' && !prenium_id) {
+                if (config.MODE == 'private' && !prenium_id) {
                     return 
                 }
                 if (!dev_id && ms_org === "120363314687943170@g.us") {
