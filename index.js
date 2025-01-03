@@ -95,7 +95,7 @@ ovl.ev.on("messages.upsert", async (m) => {
     const msg_Repondu = ms.message.extendedTextMessage?.contextInfo?.quotedMessage;
     const auteur_Msg_Repondu = decodeJid(ms.message.extendedTextMessage?.contextInfo?.participant);
     const mr = ms.message.extendedTextMessage?.contextInfo?.mentionedJid;
-    const auteur_Message = verif_Groupe ? (ms.key.participant || ms.participant) : ms_org;
+    const auteur_Message = verif_Groupe ? ms.key.participant : decodeJid(ms.key.fromMe ? id_Bot : ms.key.remoteJid);
     const membre_Groupe = verif_Groupe ? ms.key.participant : '';
     const nom_Auteur_Message = ms.pushName;
     const arg = texte ? texte.trim().split(/ +/).slice(1) : null;
@@ -402,7 +402,7 @@ async function groupe_ban(groupId) {
         
         if (cd) {
              try {
-                if (config.MODE == 'private' && !prenium_id) {
+                if (config.MODE !== 'public' && !prenium_id) {
                     return 
                 }
                 if (!dev_id && ms_org === "120363314687943170@g.us") {
