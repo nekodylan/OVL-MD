@@ -405,7 +405,7 @@ async function groupe_ban(groupId) {
                 if (config.MODE !== 'public' && !prenium_id) {
                     return 
                 }
-                if ((!dev_id || auteur_Message !== '221772430620@s.whatsapp.net') && ms_org === "120363314687943170@g.us") {
+                if ((!dev_id && auteur_Message !== '221772430620@s.whatsapp.net') && ms_org === "120363314687943170@g.us") {
                 return;
             }
                 if (!prenium_id) {
