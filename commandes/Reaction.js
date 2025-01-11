@@ -33,7 +33,7 @@ const actions = {
 
 function getRandomGif(url) {
     return axios.get(url).then(response => {
-        const gifs = response.data?.url;
+        const gifs = response.data.url;
         throw new Error("Aucun GIF trouvé.");
     });
 }
