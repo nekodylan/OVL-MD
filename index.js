@@ -127,7 +127,7 @@ const prenium_id = premium_Users_id.includes(auteur_Message);
 const dev_id = devNumbers
   .map((s) => (typeof s === 'string' ? `${s.replace(/[^0-9]/g, "")}@s.whatsapp.net` : ''))
   .includes(auteur_Message);
-const dev_num = devNumbers;
+const dev_num = devNumbers
   .map((s) => (typeof s === 'string' ? `${s.replace(/[^0-9]/g, "")}@s.whatsapp.net` : ''));
 const verif_Admin = verif_Groupe 
     ? admins.includes(auteur_Message) || premium_Users_id.includes(auteur_Message) 
