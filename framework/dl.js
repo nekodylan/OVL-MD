@@ -6,21 +6,20 @@ async function fbdl(url, maxRetries = 5) {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       const response = await axios.post(
-        "https://www.getfvid.com/downloader",
-        new URLSearchParams({
-          url: url,
-        }),
-        {
-          headers: {
-            "accept": "*/*",
-            "content-type": "application/x-www-form-urlencoded",
-            "user-agent": "GoogleBot",
-          },
-        }
-      );
+                "https://fdown.net/download.php",
+                new URLSearchParams({
+                    URLz: url,
+                }).toString(),
+                {
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "User-Agent": "GoogleBot",
+                    },
+                }
+            );
 
       const $ = cheerio.load(response.data);
-      const firstDownloadLink = $('a.btn-download').first().attr('href');
+      const firstDownloadLink = $("#sdlink").attr("href");
 
       if (!firstDownloadLink) {
         throw new Error('Aucun lien de téléchargement trouvé.');
@@ -35,6 +34,7 @@ async function fbdl(url, maxRetries = 5) {
     }
   }
 }
+
 
 async function ttdl(url, maxRetries = 5) {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
