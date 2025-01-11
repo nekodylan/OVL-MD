@@ -57,7 +57,6 @@ async function main() {
            }
         });
 store.bind(ovl.ev);
-let dev_num;
 ovl.ev.on("messages.upsert", async (m) => {
     if (m.type !== 'notify') return;
 
@@ -128,7 +127,7 @@ const prenium_id = premium_Users_id.includes(auteur_Message);
 const dev_id = devNumbers
   .map((s) => (typeof s === 'string' ? `${s.replace(/[^0-9]/g, "")}@s.whatsapp.net` : ''))
   .includes(auteur_Message);
-dev_num = devNumbers
+const dev_num = devNumbers;
   .map((s) => (typeof s === 'string' ? `${s.replace(/[^0-9]/g, "")}@s.whatsapp.net` : ''));
 const verif_Admin = verif_Groupe 
     ? admins.includes(auteur_Message) || premium_Users_id.includes(auteur_Message) 
@@ -443,7 +442,6 @@ ovl.ev.on('group-participants.update', async (data) => {
 
     const  groupPic = 'https://files.catbox.moe/54ip7g.jpg';
   try {
-        if(!dev_num.includes(data.participants)) return;
         const groupInfo = await ovl.groupMetadata(data.id);
         const settings = await GroupSettings.findOne({ where: { id: data.id } });
         if (!settings) return;
