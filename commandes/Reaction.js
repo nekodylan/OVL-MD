@@ -38,7 +38,7 @@ function getRandomGif(url) {
     });
 }
 
-function addReactionCommand(nom_cmd, reaction_url, action) {
+function addReactionCommand(nom_cmd, reaction_url) {
     ovlcmd(
         {
             nom_cmd: nom_cmd,
@@ -52,7 +52,7 @@ function addReactionCommand(nom_cmd, reaction_url, action) {
 
             let reactionCaption;
             if (cible) {
-                switch (action) {
+                switch (nom_cmd) {
                     case 'embeter':
                         reactionCaption = `@${auteur_Message} a embêté @${cible.split('@')[0]}`;
                         break;
@@ -226,7 +226,7 @@ function addReactionCommand(nom_cmd, reaction_url, action) {
             }
 
             try {
-                const gifUrl = await getRandomGif(actions[action] || "https://api.waifu.pics/many/sfw/smile");
+                const gifUrl = await getRandomGif(actions[nom_cmd] || "https://api.waifu.pics/many/sfw/smile");
                 await ovl.sendMessage(ms_org, { video: gifUrl, gifPlayback: true, mentions: [cible, auteur_Message], caption: reactionCaption }, { quoted: ms });
             } catch (error) {
                 console.error(error);
@@ -237,5 +237,5 @@ function addReactionCommand(nom_cmd, reaction_url, action) {
 }
 
 Object.entries(actions).forEach(([action, url]) => {
-    addReactionCommand(action, url, action);
+    addReactionCommand(nom_cmd, url);
 });
