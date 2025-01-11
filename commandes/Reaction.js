@@ -51,9 +51,8 @@ function addReactionCommand(nom_cmd, reaction_url, action) {
             desc: `Réaction de type ${nom_cmd}`
         },
         async (ms_org, ovl, cmd_options) => {
-            const { arg, ms, auteur_Message, auteur_Msg_Repondu } = cmd_options;
-             const auteur_Message_Repondu = ms_org?.contextInfo?.quotedMessage?.participant;
-            const cible = auteur_Msg_Repondu || (arg[0]?.includes("@") && `${arg[0].replace("@", "")}@s.whatsapp.net`);
+            const { arg, ms, auteur_Message, auteur_Msg_Repondu, repondre } = cmd_options;
+             const cible = auteur_Msg_Repondu || (arg[0]?.includes("@") && `${arg[0].replace("@", "")}@s.whatsapp.net`);
 
             let reactionCaption;
             if (cible) {
@@ -232,9 +231,9 @@ function addReactionCommand(nom_cmd, reaction_url, action) {
 
             try {
                 const gifUrl = await getRandomGif(actions[action] || "https://api.waifu.pics/many/sfw/smile");
-                await ovl.replyWithImage(gifUrl, reactionCaption);
+                await ovl.sendMessage(ms_org, { video: gifUrl, gifPlayback: true, mentions: [cible, auteur_Message], caption: reactionCaption }, { quoted: ms });
             } catch (error) {
-                await ovl.reply("Désolé, je n'ai pas pu trouver de GIF pour cette action.");
+                await repondre("Désolé, je n'ai pas pu trouver de GIF pour cette action.");
             }
         }
     );
