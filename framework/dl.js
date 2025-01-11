@@ -5,7 +5,31 @@ const cookie = require("cookie");
 async function fbdl(url, maxRetries = 5) {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      const response = await axios.post(
+      const response = await axios.get("https://fdown.net/", {
+        headers: {
+          "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+          "accept-language": "en-US,en;q=0.9,id;q=0.8",
+          "user-agent": "GoogleBot",
+        },
+        maxRedirects: 5,
+      });
+
+      const cookies = response.headers["set-cookie"];
+      const initialCookies = cookies
+        .map(cookieStr => cookie.parse(cookieStr))
+        .reduce((acc, curr) => ({ ...acc, ...curr }), {});
+
+      const $ = cheerio.load(response.data);
+      const token = $('#token').attr('value');
+
+      const sessionCookies = Object.entries({
+        __cfduid: initialCookies.__cfduid || "",
+        PHPSESSID: initialCookies.PHPSESSID || "",
+      })
+        .map(([key, value]) => cookie.serialize(key, value))
+        .join("; ");
+      
+      const rep = await axios.post(
                 "https://fdown.net/download.php",
                 new URLSearchParams({
                     URLz: url,
@@ -14,11 +38,12 @@ async function fbdl(url, maxRetries = 5) {
                     headers: {
                         "Content-Type": "application/x-www-form-urlencoded",
                         "User-Agent": "GoogleBot",
+                        "cookie": sessionCookies,
                     },
                 }
             );
 
-      const $ = cheerio.load(response.data);
+      const $ = cheerio.load(rep.data);
       const firstDownloadLink = $("#sdlink").attr("href");
 
       if (!firstDownloadLink) {
