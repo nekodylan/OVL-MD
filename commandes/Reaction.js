@@ -237,5 +237,5 @@ function addReactionCommand(nom_cmd, reaction_url) {
 }
 
 Object.entries(actions).forEach(([action, url]) => {
-    addReactionCommand(nom_cmd, url);
+    addReactionCommand(action, url);
 });
