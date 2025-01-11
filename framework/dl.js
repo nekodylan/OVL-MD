@@ -43,8 +43,8 @@ async function fbdl(url, maxRetries = 5) {
                 }
             );
 
-      const $ = cheerio.load(rep.data);
-      const firstDownloadLink = $("#sdlink").attr("href");
+      const a = cheerio.load(rep.data);
+      const firstDownloadLink = a("#sdlink").attr("href");
 
       if (!firstDownloadLink) {
         throw new Error('Aucun lien de téléchargement trouvé.');
