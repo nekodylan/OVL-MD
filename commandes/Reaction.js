@@ -2,42 +2,38 @@ const { ovlcmd } = require("../framework/ovlcmd");
 const axios = require('axios');
 
 const actions = {
-    embeter: "https://api.waifu.pics/many/sfw/bully",
-    caliner: "https://api.waifu.pics/many/sfw/cuddle",
-    pleurer: "https://api.waifu.pics/many/sfw/cry",
-    enlacer: "https://api.waifu.pics/many/sfw/hug",
-    awoo: "https://api.waifu.pics/many/sfw/awoo",
-    embrasser: "https://api.waifu.pics/many/sfw/kiss",
-    lecher: "https://api.waifu.pics/many/sfw/lick",
-    tapoter: "https://api.waifu.pics/many/sfw/pat",
-    sourire_fier: "https://api.waifu.pics/many/sfw/smug",
-    assommer: "https://api.waifu.pics/many/sfw/bonk",
-    lancer: "https://api.waifu.pics/many/sfw/yeet",
-    rougir: "https://api.waifu.pics/many/sfw/blush",
-    sourire: "https://api.waifu.pics/many/sfw/smile",
-    saluer: "https://api.waifu.pics/many/sfw/wave",
-    highfive: "https://api.waifu.pics/many/sfw/highfive",
-    tenir_main: "https://api.waifu.pics/many/sfw/handhold",
-    croquer: "https://api.waifu.pics/many/sfw/nom",
-    mordre: "https://api.waifu.pics/many/sfw/bite",
-    sauter: "https://api.waifu.pics/many/sfw/glomp",
-    gifler: "https://api.waifu.pics/many/sfw/slap",
-    tuer: "https://api.waifu.pics/many/sfw/kill",
-    coup_de_pied: "https://api.waifu.pics/many/sfw/kick",
-    heureux: "https://api.waifu.pics/many/sfw/happy",
-    clin_doeil: "https://api.waifu.pics/many/sfw/wink",
-    pousser: "https://api.waifu.pics/many/sfw/poke",
-    danser: "https://api.waifu.pics/many/sfw/dance",
-    gene: "https://api.waifu.pics/many/sfw/cringe"
+    embeter: "https://api.waifu.pics/sfw/bully",
+    caliner: "https://api.waifu.pics/sfw/cuddle",
+    pleurer: "https://api.waifu.pics/sfw/cry",
+    enlacer: "https://api.waifu.pics/sfw/hug",
+    awoo: "https://api.waifu.pics/sfw/awoo",
+    embrasser: "https://api.waifu.pics/sfw/kiss",
+    lecher: "https://api.waifu.pics/sfw/lick",
+    tapoter: "https://api.waifu.pics/sfw/pat",
+    sourire_fier: "https://api.waifu.pics/sfw/smug",
+    assommer: "https://api.waifu.pics/sfw/bonk",
+    lancer: "https://api.waifu.pics/sfw/yeet",
+    rougir: "https://api.waifu.pics/sfw/blush",
+    sourire: "https://api.waifu.pics/sfw/smile",
+    saluer: "https://api.waifu.pics/sfw/wave",
+    highfive: "https://api.waifu.pics/sfw/highfive",
+    tenir_main: "https://api.waifu.pics/sfw/handhold",
+    croquer: "https://api.waifu.pics/sfw/nom",
+    mordre: "https://api.waifu.pics/sfw/bite",
+    sauter: "https://api.waifu.pics/sfw/glomp",
+    gifler: "https://api.waifu.pics/sfw/slap",
+    tuer: "https://api.waifu.pics/sfw/kill",
+    coup_de_pied: "https://api.waifu.pics/sfw/kick",
+    heureux: "https://api.waifu.pics/sfw/happy",
+    clin_doeil: "https://api.waifu.pics/sfw/wink",
+    pousser: "https://api.waifu.pics/sfw/poke",
+    danser: "https://api.waifu.pics/sfw/dance",
+    gene: "https://api.waifu.pics/sfw/cringe"
 };
 
 function getRandomGif(url) {
     return axios.get(url).then(response => {
-        const gifs = response.data?.files || [];
-        if (gifs.length > 0) {
-            const randomGif = gifs[Math.floor(Math.random() * gifs.length)];
-            return randomGif;
-        }
+        const gifs = response.data?.url;
         throw new Error("Aucun GIF trouvé.");
     });
 }
@@ -233,6 +229,7 @@ function addReactionCommand(nom_cmd, reaction_url, action) {
                 const gifUrl = await getRandomGif(actions[action] || "https://api.waifu.pics/many/sfw/smile");
                 await ovl.sendMessage(ms_org, { video: gifUrl, gifPlayback: true, mentions: [cible, auteur_Message], caption: reactionCaption }, { quoted: ms });
             } catch (error) {
+                console.error(error);
                 await repondre("Désolé, je n'ai pas pu trouver de GIF pour cette action.");
             }
         }
