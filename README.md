@@ -101,6 +101,9 @@ DATABASE="postgresql://postgres.qnjvgxwyncnsbpfxwrbq:ovlmdmdpasse@aws-0-eu-centr
 LEVEL_UP="non"
 STICKER_PACK_NAME="Wa-sticker"
 STICKER_AUTHOR_NAME="OVL-MD"
+ANTIDELETE="off/pm/status/gc/all"
+SERVICE_ID=""
+RENDER_API_KEY=""
 ```
 ---
 
