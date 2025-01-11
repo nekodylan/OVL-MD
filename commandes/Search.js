@@ -71,7 +71,7 @@ ovlcmd(
         }
     }
 );
-*/
+
 ovlcmd(
     {
         nom_cmd: "horo",
@@ -136,7 +136,7 @@ ovlcmd(
             ovl.sendMessage(ms_org, { text: "Une erreur s'est produite." });
         }
     }
-);
+);*/
 
 ovlcmd(
     {
