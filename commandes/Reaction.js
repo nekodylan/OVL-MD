@@ -138,7 +138,7 @@ function addReactionCommand(nom_cmd, reaction_url) {
                         reactionCaption = `@${auteur_Message} a réagi à @${cible.split('@')[0]}`;
                 }
             } else {
-                switch (action) {
+                switch (nom_cmd) {
                     case 'embeter': 
                         reactionCaption = `@${auteur_Message} a embêté tout le monde.`;
                         break;
