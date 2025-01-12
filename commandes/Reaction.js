@@ -226,7 +226,7 @@ function addReactionCommand(nom_cmd, reaction_url) {
             }
 
             try {
-                const gifUrl = await getRandomGif(actions[nom_cmd] || "https://api.waifu.pics/many/sfw/smile");
+                const gifUrl = await getRandomGif(actions[nom_cmd] || "https://api.waifu.pics/sfw/smile");
                 await ovl.sendMessage(ms_org, { video: gifUrl, gifPlayback: true, mentions: [cible, auteur_Message], caption: reactionCaption }, { quoted: ms });
             } catch (error) {
                 console.error(error);
