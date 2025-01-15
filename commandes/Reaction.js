@@ -185,7 +185,7 @@ function addReactionCommand(nom_cmd, url) {
             desc: `Réaction de type ${nom_cmd}`,
         },
         async (ms_org, ovl, cmd_options) => {
-            const { arg, auteur_Message, auteur_Msg_Repondu, repondre } = cmd_options;
+            const { arg, auteur_Message, auteur_Msg_Repondu, repondre, ms } = cmd_options;
             const cible = auteur_Msg_Repondu || (arg[0]?.includes("@") && `${arg[0].replace("@", "")}@s.whatsapp.net`);
 
             try {
@@ -193,7 +193,7 @@ function addReactionCommand(nom_cmd, url) {
                 const gifUrl = response.data.url;
                 const gifBuffer = (await axios.get(gifUrl, { responseType: "arraybuffer" })).data;
                 const videoBuffer = await giftovidbuff(gifBuffer);
-                const reactionCaption = generateCaption(nom_cmd, auteur_Message, cible);
+                const reactionCaption = generateCaption(nom_cmd, auteur_Message.split('/')[0], cible.split('/')[0]);
 
                 await ovl.sendMessage(
                     ms_org,
@@ -201,9 +201,9 @@ function addReactionCommand(nom_cmd, url) {
                         video: videoBuffer,
                         gifPlayback: true,
                         caption: reactionCaption,
-                        mentions: cible ? [cible] : [],
+                        mentions: cible ? [auteur_Message, cible] : [auteur_Message],
                     },
-                    { quoted: ms_org }
+                    { quoted: ms }
                 );
             } catch (error) {
                 console.error(`Erreur avec la commande ${nom_cmd}:`, error);
