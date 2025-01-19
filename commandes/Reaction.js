@@ -116,8 +116,8 @@ function generateCaption(nom_cmd, auteur, cible) {
         withoutTarget: `@${auteur} veut gifler tout le monde !`,
     },
     tuer: {
-        withTarget: `@${auteur} tue @${cible} (virtuellement) !`,
-        withoutTarget: `@${auteur} est prêt à tuer tout le monde (virtuellement) !`,
+        withTarget: `@${auteur} tue @${cible} !`,
+        withoutTarget: `@${auteur} est prêt à tuer tout le monde !`,
     },
     coup_de_pied: {
         withTarget: `@${auteur} donne un coup de pied à @${cible} !`,
