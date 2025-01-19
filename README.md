@@ -5,7 +5,7 @@
 # Déploiement de OVL-MD
 
 ### Étape 1 : Créer un fork du projet
-- Cliquez ici [OVL-MD-FORK](https://github.com/Ainz-O-G/OVL-Md/fork).
+- Cliquez ici [OVL-MD-FORK](https://github.com/Ainz-fk/OVL-MD/fork).
 
 ### Étape 2 : Obtenir une SESSION-ID
 - Cliquez ici [SESSION-ID](https://quickest-elise-ainz-oest-org-53269c8e.koyeb.app/).
@@ -27,7 +27,7 @@ postgresql://postgres.qnjvgxwyncnsbpfxwrbq:ovlmdmdpasse@aws-0-eu-central-1.poole
 
 ### Deployer sur Koyeb
 - **Creer un compte:** [compte-koyeb](https://app.koyeb.com/auth/signup) 
-- **Deployer:** [Deployer sur Koyeb](https://app.koyeb.com/deploy?name=ovl-md&repository=Ainz-O-G%2FOVL-Md&branch=main&builder=dockerfile&instance_type=free&env%5BDATABASE%5D=postgresql%3A%2F%2Fpostgres.qnjvgxwyncnsbpfxwrbq%3Aovlmdmdpasse%40aws-0-eu-central-1.pooler.supabase.com%3A6543%2Fpostgres&env%5BLEVEL_UP%5D=non&env%5BMENU%5D=https%3A%2F%2Fi.ibb.co%2Fynx9QcZ%2Fimage.jpg&env%5BMODE%5D=public&env%5BNOM_OWNER%5D=Ainz&env%5BNUMERO_OWNER%5D=226xxxxxxxx&env%5BPREFIXE%5D=%F0%9F%97%BF&env%5BSESSION_ID%5D=Ovl-MD_qLA7XFLP_SESSION-ID&env%5BSTICKER_AUTHOR_NAME%5D=OVL-MD&env%5BSTICKER_PACK_NAME%5D=Wa-sticker)
+- **Deployer:** [Deployer sur Koyeb](https://app.koyeb.com/deploy?name=ovl-md&repository=Ainz-fk%2FOVL-MD&branch=main&builder=dockerfile&instance_type=free&env%5BDATABASE%5D=postgresql%3A%2F%2Fpostgres.qnjvgxwyncnsbpfxwrbq%3Aovlmdmdpasse%40aws-0-eu-central-1.pooler.supabase.com%3A6543%2Fpostgres&env%5BLEVEL_UP%5D=non&env%5BMENU%5D=https%3A%2F%2Fi.ibb.co%2Fynx9QcZ%2Fimage.jpg&env%5BMODE%5D=public&env%5BNOM_OWNER%5D=Ainz&env%5BNUMERO_OWNER%5D=226xxxxxxxx&env%5BPREFIXE%5D=%F0%9F%97%BF&env%5BSESSION_ID%5D=Ovl-MD_qLA7XFLP_SESSION-ID&env%5BSTICKER_AUTHOR_NAME%5D=OVL-MD&env%5BSTICKER_PACK_NAME%5D=Wa-sticker)
  
 ### Deployer sur panel
 - **Créer un compte:** [compte-panel](https://bot-hosting.net) 
@@ -63,7 +63,7 @@ function runCommand(command, args, options = {}) {
 
 if (!existsSync('ovl')) {
   console.log("Clonage du bot en cours...");
-  runCommand('git', ['clone', 'https://github.com/Ainz-O-G/OVL-Md', 'ovl']);
+  runCommand('git', ['clone', 'https://github.com/Ainz-fk/OVL-MD.git', 'ovl']);
   console.log("Clonage terminé, installation des dépendances...");
   runCommand('npm', ['install'], { cwd: 'ovl' });
   console.log("Dépendances installées avec succès !");
