@@ -193,7 +193,7 @@ function addReactionCommand(nom_cmd, url) {
                 const gifUrl = response.data.url;
                 const gifBuffer = (await axios.get(gifUrl, { responseType: "arraybuffer" })).data;
                 const videoBuffer = await giftovidbuff(gifBuffer);
-                const reactionCaption = generateCaption(nom_cmd, auteur_Message.split('/')[0], cible.split('/')[0]);
+                const reactionCaption = generateCaption(nom_cmd, auteur_Message?.split('@')[0], cible?.split('@')[0]);
 
                 await ovl.sendMessage(
                     ms_org,
