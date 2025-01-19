@@ -351,7 +351,7 @@ ovlcmd(
     desc: "Ajoute du texte à une image, vidéo ou sticker",
   },
   async (ms_org, ovl, cmd_options) => {
-    const { msg_Repondu, arg, ms, nom_Auteur_Message } = cmd_options;
+    const { msg_Repondu, arg, ms } = cmd_options;
 
     if (!msg_Repondu || !arg[0]) {
       return ovl.sendMessage(ms_org, {
@@ -378,13 +378,20 @@ ovlcmd(
       const context = canvas.getContext("2d");
 
       context.drawImage(image, 0, 0, canvas.width, canvas.height);
-      context.font = "bold 60px Arial";
+
+      const fontSize = Math.floor(canvas.height / 8);
+      context.font = `bold ${fontSize}px Arial`;
       context.textAlign = "center";
       context.strokeStyle = "black";
-      context.lineWidth = 8;
-      context.strokeText(arg.join(" "), canvas.width / 2, canvas.height - 50);
+      context.lineWidth = Math.floor(fontSize / 10);
       context.fillStyle = "white";
-      context.fillText(arg.join(" "), canvas.width / 2, canvas.height - 50);
+
+      const text = arg.join(" ").toUpperCase();
+
+      const x = canvas.width / 2;
+      const y = canvas.height - fontSize;
+      context.strokeText(text, x, y);
+      context.fillText(text, x, y);
 
       const outputBuffer = canvas.toBuffer("image/png");
       const sticker = new Sticker(outputBuffer, {
@@ -412,6 +419,7 @@ ovlcmd(
     }
   }
 );
+
 
 
   // Commande ToImage
