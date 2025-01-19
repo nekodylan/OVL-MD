@@ -13,7 +13,6 @@ async function fbdl(url, maxRetries = 5) {
                 {
                     headers: {
                         "Content-Type": "application/x-www-form-urlencoded",
-                        "User-Agent": "GoogleBot",
                     },
                 }
             );
