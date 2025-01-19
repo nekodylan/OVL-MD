@@ -116,7 +116,7 @@ async function getRenderCommit() {
 async function getGitCommit() {
   try {
     const response = await axios.get(
-      `https://api.github.com/repos/Ainz-O-G/OVL-Md/commits`,
+      `https://api.github.com/repos/Ainz-fk/OVL-MD/commits`,
       { headers: { Accept: "application/vnd.github.v3+json" } }
     );
 
