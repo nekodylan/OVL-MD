@@ -346,7 +346,7 @@ ovlcmd(
 
   // Commande Write
 
-ovlcmd(
+ ovlcmd(
   {
     nom_cmd: "write",
     classe: "Conversion",
@@ -382,30 +382,26 @@ ovlcmd(
 
       context.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-      // **➡️ Taille du texte augmentée**
-      const fontSize = Math.floor(canvas.height / 6); // Texte plus grand
+      const fontSize = Math.floor(canvas.height / 5);
       context.font = `bold ${fontSize}px sans-serif`;
       context.textAlign = "center";
       context.fillStyle = "white";
 
-      // **➡️ Contour noir épais pour une meilleure visibilité**
       context.strokeStyle = "black";
-      context.lineWidth = Math.floor(fontSize / 5); // Contour plus visible
+      context.lineWidth = Math.floor(fontSize / 5);
 
-      // **➡️ Texte en majuscules**
       const text = arg.join(" ").toUpperCase();
 
       const x = canvas.width / 2;
-      const y = canvas.height * 0.9; // Position plus haute pour éviter le bas coupé
+      const y = canvas.height * 0.9;
 
-      // **➡️ Appliquer le contour en plusieurs passes**
       for (let i = -2; i <= 2; i++) {
         for (let j = -2; j <= 2; j++) {
           context.strokeText(text, x + i, y + j);
         }
       }
       context.fillText(text, x, y);
-      
+
       const outputBuffer = canvas.toBuffer("image/png");
       const sticker = new Sticker(outputBuffer, {
         pack: config.STICKER_PACK_NAME,
@@ -414,7 +410,6 @@ ovlcmd(
       });
 
       const fileName = `${Math.floor(Math.random() * 10000)}.webp`;
-
       await sticker.toFile(fileName);
 
       await ovl.sendMessage(
