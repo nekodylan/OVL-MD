@@ -1,7 +1,7 @@
 const { ovlcmd } = require("../framework/ovlcmd");
 const { Catbox } = require('node-catbox');
 const fs = require("fs");
-const { Canvas, loadImage, createCanvas } = require("@napi-rs/canvas");
+const { loadImage, createCanvas } = require("canvas");
 const { Sticker, StickerTypes } = require("wa-sticker-formatter");
 const { execSync, exec } = require("child_process");
 const path = require('path');
@@ -101,7 +101,7 @@ ovlcmd(
         pack: config.STICKER_PACK_NAME,
         author: config.STICKER_AUTHOR_NAME,
         type: StickerTypes.FULL,
-        quality: 100,
+        quality: msg_Repondu.imageMessage ? 100 : 40
       });
 
       const stickerFileName = `${Math.floor(Math.random() * 10000)}.webp`;
@@ -320,10 +320,12 @@ ovlcmd(
       
       try {
         const stickerBuffer = await ovl.dl_save_media_ms(msg_Repondu.stickerMessage);
-        const sticker = new Sticker(stickerBuffer, {
+        const originalQuality = msg_Repondu.stickerMessage.quality || 70;
+	const sticker = new Sticker(stickerBuffer, {
           pack: arg.join(' ') ? arg.join(' '): nom_Auteur_Message,
           author: "",
           type: StickerTypes.FULL,
+          quality: originalQuality,
         });
 
         const stickerFileName = alea(".webp");
@@ -343,6 +345,7 @@ ovlcmd(
   );
 
   // Commande Write
+
 ovlcmd(
   {
     nom_cmd: "write",
@@ -419,7 +422,6 @@ ovlcmd(
     }
   }
 );
-
 
 
   // Commande ToImage
