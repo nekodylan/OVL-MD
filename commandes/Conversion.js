@@ -380,7 +380,7 @@ ovlcmd(
       const canvas = createCanvas(image.width, image.height);
       const context = canvas.getContext("2d");
 
-      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+     /* context.drawImage(image, 0, 0, canvas.width, canvas.height);
 
       // **➡️ Taille du texte augmentée**
       const fontSize = Math.floor(canvas.height / 6); // Texte plus grand
@@ -404,7 +404,17 @@ ovlcmd(
           context.strokeText(text, x + i, y + j);
         }
       }
-      context.fillText(text, x, y);
+      context.fillText(text, x, y);*/
+
+	    
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      context.font = "bold 60px Arial";
+      context.textAlign = "center";
+      context.strokeStyle = "black";
+      context.lineWidth = 8;
+      context.strokeText(arg.join(" "), canvas.width / 2, canvas.height - 50);
+      context.fillStyle = "white";
+      context.fillText(arg.join(" "), canvas.width / 2, canvas.height - 50);
 
       const outputBuffer = canvas.toBuffer("image/png");
       const sticker = new Sticker(outputBuffer, {
