@@ -20,7 +20,7 @@ async function sendMedia(ms_org, ovl, url, format, type) {
 
     const message = {
       [type]: Buffer.from(media.data),
-      mimetype: format === "opus" ? "audio/mpeg" : "video/mp4",
+      mimetype: format === "opus" ? "audio/mp4" : "video/mp4",
       caption: `\`\`\`Powered By OVL-MD\`\`\``
     };
 
