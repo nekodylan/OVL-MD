@@ -382,8 +382,8 @@ ovlcmd(
 
       context.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-      const fontSize = Math.floor(canvas.height / 5);
-      context.font = `bold ${fontSize}px sans-serif`;
+     // const fontSize = Math.floor(canvas.height / 5);
+      context.font = "bold 60px Arial";
       context.textAlign = "center";
       context.fillStyle = "white";
 
