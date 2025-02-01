@@ -20,7 +20,7 @@ async function sendMedia(ms_org, ovl, url, format, type) {
 
     const message = {
       [type]: Buffer.from(media.data),
-      mimetype: format === "opus" ? "audio/mpeg" : "video/mp4",
+      mimetype: format === " ogg" ? "audio/mpeg" : "video/mp4",
       caption: `\`\`\`Powered By OVL-MD\`\`\``
     };
 
@@ -68,7 +68,7 @@ ovlcmd(
 
             await ovl.sendMessage(ms_org, { image: { url: videoInfo.thumbnail }, caption });
 
-            await sendMedia(ms_org, ovl, song.url, "opus", "audio");
+            await sendMedia(ms_org, ovl, song.url, "ogg", "audio");
         } catch (error) {
             console.error("Erreur Song Downloader:", error.message);
             await ovl.sendMessage(ms_org, { text: "Erreur lors du téléchargement." });
@@ -142,7 +142,7 @@ ovlcmd(
     }
 
     try {
-      await sendMedia(ms_org, ovl, videoLink, "opus", "audio");
+      await sendMedia(ms_org, ovl, videoLink, "ogg", "audio");
     } catch (error) {
       ovl.sendMessage(ms_org, { text: `Erreur: ${error.message}` });
     }
