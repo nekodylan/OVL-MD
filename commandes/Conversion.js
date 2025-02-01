@@ -388,7 +388,7 @@ ovlcmd(
       context.fillStyle = "white";
 
       context.strokeStyle = "black";
-      context.lineWidth = Math.floor(fontSize / 5);
+      context.lineWidth = 8;
 
       const text = arg.join(" ").toUpperCase();
 
