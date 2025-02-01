@@ -1,7 +1,7 @@
 const { ovlcmd } = require("../framework/ovlcmd");
 const { Catbox } = require('node-catbox');
 const fs = require("fs");
-const { loadImage, createCanvas } = require("canvas");
+const { loadImage, createCanvas } = require("@napi-rs/canvas");
 const { Sticker, StickerTypes } = require("wa-sticker-formatter");
 const { execSync, exec } = require("child_process");
 const path = require('path');
@@ -382,18 +382,28 @@ ovlcmd(
 
       context.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-      const fontSize = Math.floor(canvas.height / 8);
+      // **➡️ Taille du texte augmentée**
+      const fontSize = Math.floor(canvas.height / 6); // Texte plus grand
       context.font = `bold ${fontSize}px Arial`;
       context.textAlign = "center";
-      context.strokeStyle = "black";
-      context.lineWidth = Math.floor(fontSize / 10);
       context.fillStyle = "white";
 
+      // **➡️ Contour noir épais pour une meilleure visibilité**
+      context.strokeStyle = "black";
+      context.lineWidth = Math.floor(fontSize / 5); // Contour plus visible
+
+      // **➡️ Texte en majuscules**
       const text = arg.join(" ").toUpperCase();
 
       const x = canvas.width / 2;
-      const y = canvas.height - fontSize;
-      context.strokeText(text, x, y);
+      const y = canvas.height * 0.9; // Position plus haute pour éviter le bas coupé
+
+      // **➡️ Appliquer le contour en plusieurs passes**
+      for (let i = -2; i <= 2; i++) {
+        for (let j = -2; j <= 2; j++) {
+          context.strokeText(text, x + i, y + j);
+        }
+      }
       context.fillText(text, x, y);
 
       const outputBuffer = canvas.toBuffer("image/png");
@@ -422,7 +432,6 @@ ovlcmd(
     }
   }
 );
-
 
   // Commande ToImage
   ovlcmd(
