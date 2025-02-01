@@ -6,25 +6,26 @@ async function fbdl(url, maxRetries = 5) {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       const rep = await axios.post(
-                "https://fdown.net/download.php",
-                new URLSearchParams({
-                    URLz: url,
-                }).toString(),
-                {
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded",
-                    },
-                }
-            );
+        "https://fload.co/analyze.php",
+        new URLSearchParams({ url }).toString(),
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }
+      );
 
-      const a = cheerio.load(rep.data);
-      const firstDownloadLink = a("#sdlink").attr("href");
-
-      if (!firstDownloadLink) {
-        throw new Error('Aucun lien de téléchargement trouvé.');
+      if (!rep.data || rep.data.error) {
+        throw new Error("Aucune vidéo trouvée ou erreur côté serveur.");
       }
 
-      return firstDownloadLink;
+      const videoHD = rep.data.medias.find(media => media.quality === "HD");
+
+      if (!videoHD) {
+        throw new Error("Vidéo HD non disponible.");
+      }
+
+      return videoHD.url;
     } catch (error) {
       if (attempt === maxRetries) {
         throw error;
@@ -33,7 +34,6 @@ async function fbdl(url, maxRetries = 5) {
     }
   }
 }
-
 
 async function ttdl(url, maxRetries = 5) {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
