@@ -192,10 +192,11 @@ const verif_Admin = verif_Groupe
  // Fin Rank et Level up
  
           //antilink
-          const linkRegex = /(https?:\/\/[^\s]+|www\.[^\s]+|[^\s]+\.[^\s]+)/gi;
+         // const linkRegex = /(https?:\/\/[^\s]+|www\.[^\s]+|[^\s]+\.[^\s]+)/gi;
 
 try {
-    if (linkRegex.test(texte)) {
+    if ((texte.includes('https://') || texte.includes('http://'))) {
+   // if (linkRegex.test(texte)) {
      const settings = await Antilink.findOne({ where: { id: ms_org } });
         if (verif_Groupe && settings && settings.mode == 'oui') {
         if (!verif_Admin && verif_Ovl_Admin) {
