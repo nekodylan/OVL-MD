@@ -66,8 +66,6 @@ ovlcmd(
   }
 );
 
-const axios = require('axios');
-
 ovlcmd(
   {
     nom_cmd: "fetch",
