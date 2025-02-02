@@ -5,6 +5,7 @@ const { Sudo } = require('../DataBase/sudo');
 const config = require('../set');
 const axios = require("axios");
 const { Sticker, StickerTypes } = require("wa-sticker-formatter");
+const cheerio = require('cheerio');
 
 ovlcmd(
   {
@@ -417,7 +418,7 @@ ovlcmd(
     {
         nom_cmd: "tgs",
         classe: "Owner",
-        react: "",
+        react: "🔍",
         desc: "Importe des stickers Telegram sur WhatsApp",
     },
     async (ms_org, ovl, cmd_options) => {
@@ -477,4 +478,83 @@ ovlcmd(
             repondre("Une erreur s'est produite lors du téléchargement des stickers.");
         }
     }
+);
+
+ovlcmd(
+  {
+    nom_cmd: "fetch_sc",
+    classe: "Owner",
+    react: "💻",
+    desc: "Extrait les données d'une page web, y compris HTML, CSS, JavaScript et médias",
+  },
+  async (ms_org, ovl, cmd_options) => {
+    const { arg, prenium_id } = cmd_options;
+    const lien = arg[0];
+if (!prenium_id) {
+      return ovl.sendMessage(ms_org, { text: "Vous n'avez pas le droit d'exécuter cette commande." });
+}
+    if (!lien) {
+      return ovl.sendMessage(ms_org, { text: "Veuillez fournir un lien valide. Le bot extraira le HTML, CSS, JavaScript, et les médias de la page web." });
+    }
+
+    if (!/^https?:\/\//i.test(lien)) {
+      return ovl.sendMessage(ms_org, { text: "Veuillez fournir une URL valide commençant par http:// ou https://" });
+    }
+
+    try {
+      const response = await axios.get(lien);
+      const html = response.data;
+      const $ = cheerio.load(html);
+
+      const fichiersMedia = [];
+      $('img[src], video[src], audio[src]').each((i, element) => {
+        let src = $(element).attr('src');
+        if (src) fichiersMedia.push(src);
+      });
+
+      const fichiersCSS = [];
+      $('link[rel="stylesheet"]').each((i, element) => {
+        let href = $(element).attr('href');
+        if (href) fichiersCSS.push(href);
+      });
+
+      const fichiersJS = [];
+      $('script[src]').each((i, element) => {
+        let src = $(element).attr('src');
+        if (src) fichiersJS.push(src);
+      });
+
+      await ovl.sendMessage(ms_org, { text: `**Contenu HTML**:\n\n${html}` });
+
+      if (fichiersCSS.length > 0) {
+        for (const fichierCSS of fichiersCSS) {
+          const cssResponse = await axios.get(new URL(fichierCSS, lien));
+          const cssContent = cssResponse.data;
+          await ovl.sendMessage(ms_org, { text: `**Contenu du fichier CSS**:\n\n${cssContent}` });
+        }
+      } else {
+        await ovl.sendMessage(ms_org, { text: "Aucun fichier CSS externe trouvé." });
+      }
+
+      if (fichiersJS.length > 0) {
+        for (const fichierJS of fichiersJS) {
+          const jsResponse = await axios.get(new URL(fichierJS, lien));
+          const jsContent = jsResponse.data;
+          await ovl.sendMessage(ms_org, { text: `**Contenu du fichier JavaScript**:\n\n${jsContent}` });
+        }
+      } else {
+        await ovl.sendMessage(ms_org, { text: "Aucun fichier JavaScript externe trouvé." });
+      }
+
+      if (fichiersMedia.length > 0) {
+        await ovl.sendMessage(ms_org, { text: `**Fichiers médias trouvés**:\n${fichiersMedia.join('\n')}` });
+      } else {
+        await ovl.sendMessage(ms_org, { text: "Aucun fichier média (images, vidéos, audios) trouvé." });
+      }
+
+    } catch (error) {
+      console.error(error);
+      return ovl.sendMessage(ms_org, { text: "Une erreur est survenue lors de l'extraction du contenu de la page web." });
+    }
+  }
 );
