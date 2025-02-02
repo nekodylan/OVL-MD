@@ -65,6 +65,95 @@ ovlcmd(
   }
 );
 
+const axios = require('axios');
+
+ovlcmd(
+  {
+    nom_cmd: "fetch",
+    classe: "Owner",
+    react: "🌐",
+    desc: "Télécharge le contenu d'une URL."
+  },
+  async (ms_org, ovl, cmd_options) => {
+    const { arg, prenium_id } = cmd_options;
+    
+    if (!prenium_id) {
+      return ovl.sendMessage(ms_org, { text: "Vous n'avez pas le droit d'exécuter cette commande." });
+    }
+    
+    if (!arg[0]) return ovl.sendMessage(ms_org, { text: "Veuillez fournir une URL valide !" });
+
+    try {
+      const response = await axios.get(arg[0], { responseType: 'arraybuffer' });
+      const contentType = response.headers['content-type'];
+
+      if (!contentType) {
+        return ovl.sendMessage(ms_org, { text: "Le serveur n'a pas renvoyé de type de contenu." });
+      }
+
+      console.log("Content-Type:", contentType);
+
+      if (contentType.includes('application/json')) {
+        const data = response.data;
+        return ovl.sendMessage(ms_org, { text: JSON.stringify(data, null, 2) });
+      }
+
+      if (contentType.includes('text/html')) {
+        const html = response.data.toString();
+        return ovl.sendMessage(ms_org, { text: html });
+      }
+
+      if (contentType.includes('image')) {
+        return ovl.sendMessage(
+          ms_org,
+          { image: { url: arg[0] }, caption: arg[0] },
+          { quoted: ms_org }
+        );
+      }
+
+      if (contentType.includes('video')) {
+        return ovl.sendMessage(
+          ms_org,
+          { video: { url: arg[0] }, caption: arg[0] },
+          { quoted: ms_org }
+        );
+      }
+
+      if (contentType.includes('audio')) {
+        const filename = arg[0].split('/').pop(); 
+        return ovl.sendMessage(
+          ms_org,
+          {
+            audio: { url: arg[0] },
+            mimetype: "audio/mpeg",
+            fileName: filename,
+          },
+          { quoted: ms_org }
+        );
+      }
+
+      if (contentType.includes('application/pdf') || contentType.includes('application')) {
+        return ovl.sendMessage(
+          ms_org,
+          {
+            document: { url: arg[0] },
+            mimetype: contentType,
+            fileName: arg[0].split('/').pop(),
+          },
+          { quoted: ms_org }
+        );
+      }
+
+      return ovl.sendMessage(ms_org, { text: "Le type de contenu n'est pas pris en charge ou n'a pas pu être déterminé." });
+
+    } catch (error) {
+      console.error(error);
+      return ovl.sendMessage(ms_org, { text: "Une erreur est survenue lors de la récupération de l'URL." });
+    }
+  }
+);
+
+
 ovlcmd(
   {
     nom_cmd: "ban",
