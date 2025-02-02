@@ -4,6 +4,8 @@ const gis = require("g-i-s");
 const wiki = require('wikipedia');
 const { Sticker, StickerTypes } = require("wa-sticker-formatter");
 const config = require('../set');
+const translate = require('@vitalets/google-translate-api');
+const acrcloud = require("acrcloud");
 
 ovlcmd(
     {
@@ -452,3 +454,94 @@ ovlcmd(
   }
 );
 
+ovlcmd(
+  {
+    nom_cmd: "anime",
+    classe: "search",
+    react: "📺",
+    desc: "Recherche un anime aléatoire avec un résumé et un lien vers MyAnimeList."
+  },
+  async (ms_org, ovl, cmd_options) => {
+   
+    const link = "https://api.jikan.moe/v4/random/anime";
+
+    try {
+      const response = await axios.get(link);
+      const data = response.data.data;
+
+      const title = data.title;
+      let synopsis = data.synopsis;
+      const imageUrl = data.images.jpg.image_url;
+      const episodes = data.episodes;
+      const status = data.status;
+
+      const translatedSynopsis = await translate(synopsis, { to: 'fr' }).then(res => res.text).catch(() => synopsis);
+
+      const message = `✨ *ANIME ALÉATOIRE* ✨\n\n` +
+          `📺 *Titre* : ${title}\n` +
+          `🎬 *Épisodes* : ${episodes}\n` +
+          `📡 *Statut* : ${status}\n` +
+          `📝 *Synopsis* : ${translatedSynopsis}\n\n` +
+          `🔗 *URL* : ${data.url}\n`;
+
+      await ovl.sendMessage(ms_org, {
+        image: { url: imageUrl },
+        caption: message
+      });
+
+    } catch (error) {
+      ovl.sendMessage(ms_org, { text: 'Une erreur est survenue lors de la récupération des informations de l\'anime.' });
+    }
+  }
+);
+
+ovlcmd(
+  {
+    nom_cmd: "shazam",
+    classe: "search",
+    react: "🎶",
+    desc: "Identifie une chanson à partir d'une image ou vidéo."
+  },
+  async (ms_org, ovl, cmd_options) => {
+   const { msg_Repondu } = cmd_options;
+
+
+    const mediaMessage =
+      msg_Repondu.imageMessage ||
+      msg_Repondu.videoMessage;
+
+    if (!mediaMessage) {
+      return ovl.sendMessage(ms_org, {
+        text: "Veuillez répondre à une image ou vidéo valide.",
+      });
+    }
+
+    try {
+      let acr = new acrcloud({
+        host: 'identify-ap-southeast-1.acrcloud.com',
+        access_key: '26afd4eec96b0f5e5ab16a7e6e05ab37',
+        access_secret: 'wXOZIqdMNZmaHJP1YDWVyeQLg579uK2CfY6hWMN8'
+      });
+
+      let buffer = await ovl.dl_save_media_ms(mediaMessage);
+
+      let { status, metadata } = await acr.identify(buffer);
+
+      if (status.code !== 0) {
+        return ovl.sendMessage(ms_org, { text: "Chanson non reconnue." });
+      }
+
+      let { title, artists, album, genres, release_date } = metadata.music[0];
+      const message = `🎶 *Détails de la chanson* 🎶\n\n` +
+                      `🔊 *Titre*: *${title}*\n` +
+                      `${artists ? `🎤 *Artistes*: *${artists.map(v => v.name).join(', ')}*` : ''}\n` +
+                      `${album ? `💿 *Album*: *${album.name}*` : ''}\n` +
+                      `${genres ? `🎧 *Genres*: *${genres.map(v => v.name).join(', ')}*` : ''}\n` +
+                      `📅 *Date de sortie*: *${release_date}*\n`;
+
+      ovl.sendMessage(ms_org, { text: message });
+    } catch (error) {
+      ovl.sendMessage(ms_org, { text: "Erreur lors de l'identification." });
+    }
+  }
+);
