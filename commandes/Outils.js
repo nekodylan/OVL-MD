@@ -252,7 +252,7 @@ ovlcmd(
     }
 );
 
-const apiKeys = [
+/*const apiKeys = [
   'eb1ac1cc00374b7eab9ce2cfdc0f32c1',
   '7da8a6dfb4e14b9a94eae88c0e28d91b',
   'd945dda8cec14d93abcfdc34699d6972',
@@ -288,7 +288,7 @@ async function captureScreenshot(url) {
     }
   }
   throw new Error('Impossible de récupérer la capture d\'écran, toutes les clés API ont échoué.');
-}
+}*/
 
 ovlcmd(
   {
@@ -306,7 +306,7 @@ ovlcmd(
       });
     }
 
-    const url = arg[0];
+  /*  const url = arg[0];
 
     try {
       const screenshot = await captureScreenshot(url);
@@ -315,7 +315,12 @@ ovlcmd(
         image:  Buffer.from(screenshot),
         caption: `Voici la capture d'écran de: ${url}`,
       });
-
+*/
+      try { 
+          await ovl.sendMessage(ms_org, {
+        image: `https://image.thum.io/get/fullpage/${arg[0]}`,
+        caption: `Voici la capture d'écran de: ${url}`,
+      });
     } catch (error) {
       console.error('Erreur lors de la capture de l\'écran:', error.message); // Log pour l'erreur générale
       return ovl.sendMessage(ms_org, {
