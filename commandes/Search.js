@@ -6,7 +6,7 @@ const { Sticker, StickerTypes } = require("wa-sticker-formatter");
 const config = require('../set');
 const translate = require('@vitalets/google-translate-api');
 const acrcloud = require("acrcloud");
-const ytsr = require('ytsr');
+const ytsr = require('@distube/ytsr');
 
 ovlcmd(
     {
