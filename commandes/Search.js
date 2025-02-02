@@ -2,6 +2,8 @@ const { ovlcmd, cmd } = require("../framework/ovlcmd");
 const axios = require('axios');
 const gis = require("g-i-s");
 const wiki = require('wikipedia');
+const { Sticker, StickerTypes } = require("wa-sticker-formatter");
+const config = require('../set');
 
 ovlcmd(
     {
@@ -351,16 +353,15 @@ ovlcmd(
 
 ovlcmd(
   {
-    nom_cmd: "sticker",
+    nom_cmd: "stickersearch",
     classe: "fun",
     react: "🖼️",
-    desc: "Recherche et envoie des stickers animés basés sur un mot-clé."
+    desc: "Recherche et envoie des stickers animés basés sur un mot-clé.",
+    alias: ["sstick"]
   },
   async (ms_org, ovl, cmd_options) => {
     const { arg, auteur_Message } = cmd_options;
-    const axios = require("axios");
-    const { Sticker, StickerTypes } = require("wa-sticker-formatter");
-
+    
     if (!arg.length) {
       return ovl.sendMessage(ms_org, { text: "Veuillez fournir un terme de recherche pour le sticker !" });
     }
@@ -385,13 +386,15 @@ ovlcmd(
       for (let i = 0; i < Math.min(8, stickers.length); i++) {
         const gifUrl = stickers[i].media_formats.gif.url;
         const sticker = new Sticker(gifUrl, {
-          pack: "Ovl Stickers",
+          pack: config.STICKER_PACK_NAME,
+          author: config.STICKER_AUTHOR_NAME,
           type: StickerTypes.FULL,
           categories: ["🤩", "🎉"],
           id: "12345",
           quality: 60,
           background: "transparent",
         });
+
         const stickerBuffer = await sticker.toBuffer();
         await ovl.sendMessage(auteur_Message, { sticker: stickerBuffer });
       }
