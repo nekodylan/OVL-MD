@@ -154,7 +154,7 @@ ovlcmd(
 ovlcmd(
     {
         nom_cmd: "google",
-        classe: "Recherche",
+        classe: "search",
         desc: "Recherche sur Google.",
         alias: ["search"],
     },
@@ -203,7 +203,7 @@ ovlcmd(
 ovlcmd(
     {
         nom_cmd: "wiki",
-        classe: "Recherche",
+        classe: "search",
         react: "📖",
         desc: "Recherche sur Wikipédia.",
     },
@@ -245,44 +245,22 @@ ovlcmd(
         }
 
         try {
-            const response = await fetch(`https://itzpire.com/stalk/github-user?username=${encodeURIComponent(username)}`);
-            const data = await response.json();
+            const response = await axios.get(`https://api.github.com/users/${encodeURIComponent(username)}`);
+            const data = response.data;
 
-            if (!data || !data.data) {
-                return ovl.sendMessage(ms_org, { text: "❗ Impossible de récupérer les données de l'utilisateur GitHub." });
-            }
+            const message = `*👤 Nom d'utilisateur :* ${data.login}\n`
+                + `*📛 Nom affiché :* ${data.name || "Non spécifié"}\n`
+                + `*📝 Bio :* ${data.bio || "Aucune bio"}\n`
+                + `*🏢 Entreprise :* ${data.company || "Non spécifiée"}\n`
+                + `*📍 Localisation :* ${data.location || "Non spécifiée"}\n`
+                + `*🔗 Lien :* ${data.html_url}\n`
+                + `*👥 Followers :* ${data.followers}\n`
+                + `*👤 Following :* ${data.following}\n`
+                + `*📦 Repos publics :* ${data.public_repos}\n`
+                + `*🕰️ Créé le :* ${data.created_at.split("T")[0]}`;
 
-            const {
-                username,
-                nickname,
-                bio,
-                profile_pic: profilePic,
-                url,
-                type,
-                admin: isAdmin,
-                company,
-                blog,
-                location,
-                public_repo: publicRepos,
-                public_gists: publicGists,
-                followers,
-                following,
-                ceated_at: createdAt,
-                updated_at: updatedAt
-            } = data.data;
-
-            const message = `*👤 Nom d'utilisateur :* ${username}\n`
-                + `*📛 Surnom :* ${nickname || "Non spécifié"}\n`
-                + `*📝 Bio :* ${bio || "Aucune bio"}\n`
-                + `*🔗 Lien :* ${url}\n`
-                + `*📍 Localisation :* ${location || "Non spécifiée"}\n`
-                + `*👥 Followers :* ${followers}\n`
-                + `*👤 Following :* ${following}\n`
-                + `*📦 Repos publics :* ${publicRepos}\n`
-                + `*🕰️ Créé le :* ${createdAt}`;
-
-            if (profilePic) {
-                await ovl.sendMessage(ms_org, { image: { url: profilePic }, caption: message });
+            if (data.avatar_url) {
+                await ovl.sendMessage(ms_org, { image: { url: data.avatar_url }, caption: message });
             } else {
                 await ovl.sendMessage(ms_org, { text: message });
             }
