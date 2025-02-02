@@ -329,3 +329,59 @@ ovlcmd(
     }
   }
 );
+
+const os = require('os');
+
+ovlcmd(
+  {
+    nom_cmd: "system_status",
+    classe: "Outils",
+    react: "🖥️",
+    desc: "Affiche les informations du système en temps réel"
+  },
+  async (ms_org, ovl, cmd_options) => {
+    const platform = os.platform();
+    const arch = os.arch();
+    const cpus = os.cpus();
+    const totalMemory = (os.totalmem() / (1024 * 1024 * 1024)).toFixed(2);
+    const freeMemory = (os.freemem() / (1024 * 1024 * 1024)).toFixed(2);
+    const hostname = os.hostname();
+    const loadAverage = os.loadavg();
+    const uptimeSeconds = os.uptime();
+
+    const j = Math.floor(uptimeSeconds / 86400);
+    const h = Math.floor((uptimeSeconds / 3600) % 24);
+    const m = Math.floor((uptimeSeconds % 3600) / 60);
+    const s = Math.floor(uptimeSeconds % 60);
+    let uptime = '';
+    if (j > 0) uptime += `${j}J `;
+    if (h > 0) uptime += `${h}H `;
+    if (m > 0) uptime += `${m}M `;
+    if (s > 0) uptime += `${s}S`;
+
+    const cpuUsage = cpus.map(cpu => {
+      let total = 0;
+      for (type in cpu.times) {
+        total += cpu.times[type];
+      }
+      const usage = ((100 - (cpu.times.idle / total) * 100)).toFixed(2);
+      return usage + "%";
+    }).join(", ");
+
+    const serverSpeed = (100 - loadAverage[0] * 100 / cpus.length).toFixed(2);
+
+    await ovl.sendMessage(ms_org, {
+      text: `🖥️ *ÉTAT DU SYSTÈME*\n\n` +
+            `⚡ *Vitesse du serveur*: ${serverSpeed} %\n` +
+            `🖧 *Charge Moyenne*: ${loadAverage.map(l => l.toFixed(2)).join(", ")}\n` +
+            `⏳ *Uptime*: ${uptime.trim()}\n` +
+            `💻 *Plateforme*: ${platform}\n` +
+            `🔧 *Architecture*: ${arch}\n` +
+            `🖧 *Processeur*: ${cpus.length} Cœur(s) (${cpuUsage})\n` +
+            `💾 *Mémoire Totale*: ${totalMemory} GB\n` +
+            `🆓 *Mémoire Libre*: ${freeMemory} GB\n` +
+            `🌐 *Nom de l'Hôte*: ${hostname}\n` +
+            `🎉 *Version*: OVL-MD 1.0.0`
+    });
+  }
+);
