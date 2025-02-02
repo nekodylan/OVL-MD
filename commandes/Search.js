@@ -382,3 +382,73 @@ ovlcmd(
     }
   }
 );
+
+ovlcmd(
+  {
+    nom_cmd: "meteo",
+    classe: "search",
+    react: "🌦️",
+    desc: "Affiche la météo d'une ville.",
+  },
+  async (ms_org, ovl, cmd_options) => {
+    const { arg } = cmd_options;
+    const cityName = arg.join(" ");
+
+    if (!cityName) {
+      return ovl.sendMessage(ms_org, { text: "❗ Veuillez fournir un nom de ville." });
+    }
+
+    try {
+      const apiKey = "1ad47ec6172f19dfaf89eb3307f74785";
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(cityName)}&units=metric&appid=${apiKey}`;
+
+      const response = await axios.get(url);
+      const data = response.data;
+
+      const city = data.name;
+      const country = data.sys.country;
+      const temperature = data.main.temp;
+      const feelsLike = data.main.feels_like;
+      const minTemperature = data.main.temp_min;
+      const maxTemperature = data.main.temp_max;
+      const description = data.weather[0].description;
+      const humidity = data.main.humidity;
+      const windSpeed = data.wind.speed;
+      const rainVolume = data.rain ? data.rain["1h"] || 0 : 0;
+      const cloudiness = data.clouds.all;
+      const sunrise = new Date(data.sys.sunrise * 1000);
+      const sunset = new Date(data.sys.sunset * 1000);
+
+      // Formatage des heures de lever et coucher du soleil (juste h:min:s)
+      const formatTime = (date) => {
+        const hours = date.getUTCHours().toString().padStart(2, '0');
+        const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+        const seconds = date.getUTCSeconds().toString().padStart(2, '0');
+        return `${hours}:${minutes}:${seconds}`;
+      };
+
+      const formattedSunrise = formatTime(sunrise);
+      const formattedSunset = formatTime(sunset);
+
+      const weatherMessage = `🌍 *Météo à ${city}, ${country}*  
+
+🌡️ *Température :* ${temperature}°C  
+🌡️ *Ressenti :* ${feelsLike}°C  
+📉 *Température min :* ${minTemperature}°C  
+📈 *Température max :* ${maxTemperature}°C  
+📝 *Description :* ${description.charAt(0).toUpperCase() + description.slice(1)}  
+💧 *Humidité :* ${humidity}%  
+💨 *Vent :* ${windSpeed} m/s  
+🌧️ *Précipitations (1h) :* ${rainVolume} mm  
+☁️ *Nébulosité :* ${cloudiness}%  
+🌄 *Lever du soleil (GMT) :* ${formattedSunrise}  
+🌅 *Coucher du soleil (GMT) :* ${formattedSunset}`;
+
+      await ovl.sendMessage(ms_org, { text: weatherMessage });
+    } catch (error) {
+      console.error("Erreur lors de la récupération des données météo :", error.message);
+      await ovl.sendMessage(ms_org, { text: "❗ Impossible de trouver cette ville. Vérifiez l'orthographe et réessayez !" });
+    }
+  }
+);
+
