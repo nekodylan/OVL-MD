@@ -127,29 +127,32 @@ ovlcmd(
         const { arg } = cmd_options;
         const songName = arg.join(" ");
         if (!songName) {
-            return ovl.sendMessage(ms_org, { text: "❗ Veuillez fournir un nom de chanson pour obtenir les paroles." });
+            return ovl.sendMessage(ms_org, { text: "Veuillez fournir un nom de chanson pour obtenir les paroles." });
         }
 
         try {
-            const apiUrl = `https://api.dreaded.site/api/lyrics?title=${encodeURIComponent(songName)}`;
-            const response = await axios.get(apiUrl);
-            const data = response.data;
+            const apiUrl = `https://api.genius.com/search?q=${encodeURIComponent(songName)}`;
+const response = await axios.get(apiUrl, {
+    headers: {
+        'Authorization': `Bearer tnxIXZ2Q6pQ5Av_XbPjF0No5SJnYAPW6_haNi1PjDs2euV1IuPeDhxs5FzRs7mSH`
+    }
+});
 
-            if (!data || !data.result || !data.result.lyrics) {
-                return ovl.sendMessage(ms_org, { text: "❗ Désolé, je n'ai pas trouvé les paroles pour cette chanson." });
+            const song = response.data.response.hits[0]?.result;
+            if (!song) {
+                return ovl.sendMessage(ms_org, { text: "Désolé, je n'ai pas trouvé les paroles pour cette chanson." });
             }
 
-            const { title, artist, lyrics, thumb } = data.result;
-            const message = `*🎵Titre :* ${title}\n*🎤Artiste :* ${artist}\n\n*🎶Paroles :*\n${lyrics}`;
+            const lyricsUrl = song.url;
+            const title = song.title;
+            const artist = song.primary_artist.name;
 
-            if (thumb) {
-                await ovl.sendMessage(ms_org, { image: { url: thumb }, caption: message });
-            } else {
-                await ovl.sendMessage(ms_org, { text: message });
-            }
+            const lyricsMessage = `*🎵Titre :* ${title}\n*🎤Artiste :* ${artist}\n*🔗URL des paroles :* ${lyricsUrl}`;
+
+            await ovl.sendMessage(ms_org, { text: lyricsMessage });
         } catch (error) {
             console.error("Erreur lors de la recherche des paroles :", error.message);
-            ovl.sendMessage(ms_org, { text: "❗ Une erreur s'est produite lors de la recherche des paroles." });
+            ovl.sendMessage(ms_org, { text: "Une erreur s'est produite lors de la recherche des paroles." });
         }
     }
 );
