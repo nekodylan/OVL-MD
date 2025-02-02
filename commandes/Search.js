@@ -187,7 +187,7 @@ ovlcmd(
 
             let searchResultsMsg = `*🔍 Résultats de recherche pour : ${searchTerm}*\n\n`;
             results.forEach((result, index) => {
-                searchResultsMsg += `${index + 1}. *📌Titre:* ${result.title}\n*📃Description:* ${result.snippet}\n*🌐Lien:* ${result.link}\n\n`;
+                searchResultsMsg += `${index + 1}.\n *📌Titre:* ${result.title}\n*📃Description:* ${result.snippet}\n*🌐Lien:* ${result.link}\n\n`;
             });
 
             await ovl.sendMessage(ms_org, { text: searchResultsMsg });
@@ -288,7 +288,7 @@ ovlcmd(
         }
 
         try {
-            const response = await axios.get(`http://www.omdbapi.com/?apikey=742b2d09&t=${encodeURIComponent(movieName)}&plot=full`);
+            const response = await axios.get(`http://www.omdbapi.com/?apikey=742b2d09&t=${encodeURIComponent(movieName)}&plot=full&lang=fr`);
             const data = response.data;
 
             if (data.Response === "False") {
@@ -332,7 +332,7 @@ ovlcmd(
 ovlcmd(
   {
     nom_cmd: "stickersearch",
-    classe: "fun",
+    classe: "search",
     react: "🖼️",
     desc: "Recherche et envoie des stickers animés basés sur un mot-clé.",
     alias: ["sstick"]
