@@ -301,6 +301,8 @@ ovlcmd(
                 return ovl.sendMessage(ms_org, { text: "❗ Impossible de trouver ce film ou cette série." });
             }
 
+            const translatedSynopsis = await translate(data.Plot, { to: 'fr' }).then(res => res.text).catch(() => data.Plot);
+
             const imdbInfo = `⚍⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚍\n`
                 + `🎬 *IMDB MOVIE SEARCH*\n`
                 + `⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎\n`
@@ -313,7 +315,7 @@ ovlcmd(
                 + `*👨🏻‍💻 Réalisateur :* ${data.Director}\n`
                 + `*✍ Scénariste :* ${data.Writer}\n`
                 + `*👨 Acteurs :* ${data.Actors}\n`
-                + `*📃 Synopsis :* ${data.Plot}\n`
+                + `*📃 Synopsis :* ${translatedSynopsis}\n`
                 + `*🌐 Langue :* ${data.Language}\n`
                 + `*🌍 Pays :* ${data.Country}\n`
                 + `*🎖️ Récompenses :* ${data.Awards || "Aucune"}\n`
@@ -494,6 +496,7 @@ ovlcmd(
       });
 
     } catch (error) {
+        console.error(error);
       ovl.sendMessage(ms_org, { text: 'Une erreur est survenue lors de la récupération des informations de l\'anime.' });
     }
   }
@@ -545,6 +548,7 @@ ovlcmd(
 
       ovl.sendMessage(ms_org, { text: message });
     } catch (error) {
+        console.error(error);
       ovl.sendMessage(ms_org, { text: "Erreur lors de l'identification." });
     }
   }
@@ -556,6 +560,7 @@ ovlcmd(
         classe: "Recherche",
         react: "🎵",
         desc: "Recherche une chanson depuis YouTube avec un terme de recherche",
+        alias: ['yts']
     },
     async (ms_org, ovl, cmd_options) => {
         const { arg } = cmd_options;
@@ -573,11 +578,11 @@ ovlcmd(
             }
 
             const results = searchResults.items.map((item, index) => {
-                return `⬡ ${index + 1}. \n⬡ Titre: ${item.name}\n⬡ URL: ${item.url}\n⬡ Vues: ${item.views}\n⬡ Durée: ${item.duration}\n\n`;
+                return `${index + 1}. \n*⬡Titre:* ${item.name}\n*⬡URL*: ${item.url}\n*⬡Vues:* ${item.views}\n*⬡Durée:* ${item.duration}\n\n`;
             }).join("\n");
 
             await ovl.sendMessage(ms_org, {
-                text: `╭─── 〔 OVL-MD YTSEARCH 〕 ──⬣\n${results}\n╰───────────────────⬣`,
+                text: `╭─── 〔 OVL-MD YTS 〕 ──⬣\n${results}\n╰──────────────────⬣`,
             });
         } catch (error) {
             console.error("Erreur YTSearch:", error.message);
