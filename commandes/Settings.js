@@ -1,18 +1,18 @@
 const axios = require("axios");
 const { ovlcmd } = require("../framework/ovlcmd");
 const config = require('../set');
+const os = require('os');
 
 const RENDER_API_KEY = config.RENDER_API_KEY;
-const SERVICE_ID = config.SERVICE_ID;
-
+const SERVICE_ID = os.hostname();
 const headers = {
   Authorization: `Bearer ${RENDER_API_KEY}`,
   "Content-Type": "application/json",
 };
 
 function checkConfig() {
-  if (!RENDER_API_KEY || !SERVICE_ID) {
-    return "*Erreur :* Les variables `RENDER_API_KEY` et `SERVICE_ID` doivent être définies dans la configuration.";
+  if (!RENDER_API_KEY) {
+    return "*Erreur :* La variable `RENDER_API_KEY` doivent être définies dans la configuration.";
   }
   return null;
 }
