@@ -195,9 +195,15 @@ ovlcmd(
     async (ms_org, ovl, cmd_options) => {
         const { arg, auteur_Message, auteur_Msg_Repondu } = cmd_options;
          
-            const pp = "https://files.catbox.moe/ulwqtr.jpg";
-     const userId = auteur_Message || (arg[0]?.includes("@") && `${arg[0].replace("@", "")}@s.whatsapp.net`) || auteur_Msg_Repondu;
+        const userId = (arg[0]?.includes("@") && `${arg[0].replace("@", "")}@s.whatsapp.net`) || auteur_Msg_Repondu || auteur_Message;
 
+        let pp;
+        try {
+            pp = await ovl.profilePictureUrl(userId, 'image');
+        } catch {
+            pp = 'https://files.catbox.moe/ulwqtr.jpg';
+        }
+    
         const allUsers = await Ranks.findAll({
             order: [['messages', 'DESC']]
         });
