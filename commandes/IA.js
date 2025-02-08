@@ -27,7 +27,10 @@ ovlcmd(
                 model: "GPT-4",
                 markdown: false
             }, {
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json', 
+                            'x-nexra-user': 'user-2qa38V9c93',
+                            'x-nexra-secret': 'nx-10O9c47310O81Q28CW27O481129q4BQ56e3529u7Ej10rvyDWHw1or'
+                         }
             });
 
             const id = result.data.id;
@@ -83,7 +86,10 @@ ovlcmd(
                 prompt: prompt,
                 model: "dalle2"
             }, {
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json', 
+                            'x-nexra-user': 'user-2qa38V9c93',
+                            'x-nexra-secret': 'nx-10O9c47310O81Q28CW27O481129q4BQ56e3529u7Ej10rvyDWHw1or'
+                         }
             });
 
             const id = result.data.id;
@@ -141,7 +147,10 @@ ovlcmd(
                 stream: false,
                 model: "Bing"
             }, {
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json', 
+                            'x-nexra-user': 'user-2qa38V9c93',
+                            'x-nexra-secret': 'nx-10O9c47310O81Q28CW27O481129q4BQ56e3529u7Ej10rvyDWHw1or'
+                         }
             });
 
             const id = result.data.id;
@@ -200,7 +209,10 @@ ovlcmd(
                 markdown: false,
                 model: "blackbox"
             }, {
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json', 
+                            'x-nexra-user': 'user-2qa38V9c93',
+                            'x-nexra-secret': 'nx-10O9c47310O81Q28CW27O481129q4BQ56e3529u7Ej10rvyDWHw1or'
+                         }
             });
 
             const id = result.data.id;
@@ -260,7 +272,10 @@ ovlcmd(
                 stream: false,
                 model: "gemini-pro"
             }, {
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json', 
+                            'x-nexra-user': 'user-2qa38V9c93',
+                            'x-nexra-secret': 'nx-10O9c47310O81Q28CW27O481129q4BQ56e3529u7Ej10rvyDWHw1or'
+                          }
             });
 
             const id = result.data.id;
