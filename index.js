@@ -440,8 +440,12 @@ ovl.ev.on('group-participants.update', async (data) => {
         }
         return jid;
     };
-
-    const  groupPic = 'https://files.catbox.moe/54ip7g.jpg';
+ 
+   try {
+            groupPic = await zk.profilePictureUrl(data.id, 'image');
+        } catch {
+            groupPic = 'https://files.catbox.moe/54ip7g.jpg';
+   }
   try {
         const groupInfo = await ovl.groupMetadata(data.id);
         const settings = await GroupSettings.findOne({ where: { id: data.id } });
@@ -451,13 +455,13 @@ ovl.ev.on('group-participants.update', async (data) => {
 
         if (data.action === 'add' && welcome === 'oui') {
             const newMembers = data.participants.map(m => `@${m.split("@")[0]}`).join('\n');
-            const message = `🎉 Bienvenue ! 🎉\n\n${newMembers}\n\n📜 *Description du groupe :* ${groupInfo.desc || "Aucune description"}`;
+            const message = `🎉Bienvenue🎉 => ${newMembers}\n\n*Description:* ${groupInfo.desc || "Aucune description"}`;
             await ovl.sendMessage(data.id, { image: { url: groupPic }, caption: message, mentions: data.participants });
         }
 
         if (data.action === 'remove' && goodbye === 'oui') {
             const leftMembers = data.participants.map(m => `@${m.split("@")[0]}`).join('\n');
-            await ovl.sendMessage(data.id, { text: `👋 Au revoir !\n\n${leftMembers}`, mentions: data.participants });
+            await ovl.sendMessage(data.id, { text: `👋 Au revoir ${leftMembers}`, mentions: data.participants });
         }
 
         if (data.action === 'promote' && antipromote === 'oui') {
@@ -465,7 +469,7 @@ ovl.ev.on('group-participants.update', async (data) => {
 
             await ovl.groupParticipantsUpdate(data.id, [target], "demote");
             await ovl.sendMessage(data.id, {
-                text: `🚫 Promotion non autorisée !\n\n@${target.split("@")[0]} a été rétrogradé.`,
+                text: `🚫Promotion non autorisée: @${target.split("@")[0]} a été rétrogradé.`,
                 mentions: [target],
             });
         }
@@ -475,7 +479,7 @@ ovl.ev.on('group-participants.update', async (data) => {
 
             await ovl.groupParticipantsUpdate(data.id, [target], "promote");
             await ovl.sendMessage(data.id, {
-                text: `🚫 Rétrogradation non autorisée !\n\n@${target.split("@")[0]} a été promu à nouveau.`,
+                text: `🚫Rétrogradation non autorisée: @${target.split("@")[0]} a été promu à nouveau.`,
                 mentions: [target],
             });
         }
