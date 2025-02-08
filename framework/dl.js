@@ -6,7 +6,7 @@ async function fbdl(url, maxRetries = 5) {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       const rep = await axios.post(
-        "https://fload.co/analyze.php",
+        "https://fsave.net/proxy.php",
         new URLSearchParams({ url }).toString(),
         {
           headers: {
@@ -15,17 +15,7 @@ async function fbdl(url, maxRetries = 5) {
         }
       );
 
-      if (!rep.data || rep.data.error) {
-        throw new Error("Aucune vidéo trouvée ou erreur côté serveur.");
-      }
-
-      const videoHD = rep.data.medias.find(media => media.quality === "HD");
-
-      if (!videoHD) {
-        throw new Error("Vidéo HD non disponible.");
-      }
-
-      return videoHD.url;
+      return rep.data.api.previewUrl.replace(/\\\//g, '/');
     } catch (error) {
       if (attempt === maxRetries) {
         throw error;
