@@ -6,6 +6,7 @@ const config = require('../set');
 const axios = require("axios");
 const { Sticker, StickerTypes } = require("wa-sticker-formatter");
 const cheerio = require('cheerio');
+const { TempMail } = require("tempmail.lol");
 
 ovlcmd(
   {
@@ -466,6 +467,77 @@ if (!prenium_id) {
     } catch (error) {
       console.error(error);
       return ovl.sendMessage(ms_org, { text: "Une erreur est survenue lors de l'extraction du contenu de la page web." });
+    }
+  }
+);
+
+ovlcmd(
+  {
+    nom_cmd: "tempmail",
+    classe: "utilitaire",
+    react: "📧",
+    desc: "Crée un email temporaire."
+  },
+  async (ms_org, ovl, cmd_options) => {
+    const { msg_Repondu } = cmd_options;
+
+    try {
+      const tempmail = new TempMail();
+      const inbox = await tempmail.createInbox();
+      
+      const emailMessage = `Voici votre adresse email temporaire : ${inbox.address}\n\nVotre token est : ${inbox.token}\n\nPour récupérer vos messages, utilisez <tempinbox votre-token>.`;
+
+      await ovl.sendMessage(ms_org, { text: emailMessage });
+      
+    } catch (error) {
+      console.error(error);
+      return ovl.sendMessage(ms_org, { text: "Une erreur s'est produite lors de la création de l'email temporaire." });
+    }
+  }
+);
+
+ovlcmd(
+  {
+    nom_cmd: "tempinbox",
+    classe: "utilitaire",
+    react: "📩",
+    desc: "Récupère les messages d'un email temporaire."
+  },
+  async (ms_org, ovl, cmd_options) => {
+    const { arg, msg_Repondu } = cmd_options;
+
+    if (!arg[0]) return ovl.sendMessage(ms_org, { text: "Pour récupérer les messages de votre email temporaire, fournissez le token qui a été émis." });
+
+    try {
+      const checkMail = `https://tempmail.apinepdev.workers.dev/api/getmessage?email=${encodeURIComponent(arg[0])}`;
+
+      const response = await fetch(checkMail);
+
+      if (!response.ok) {
+        return ovl.sendMessage(ms_org, { text: `${response.status} erreur lors de la communication avec l'API.` });
+      }
+
+      const data = await response.json();
+
+      if (!data || !data.messages) {
+        return ovl.sendMessage(ms_org, { text: "Impossible de récupérer les messages, votre boîte de réception est peut-être vide ou il y a eu une autre erreur." });
+      }
+
+      const messages = data.messages;
+      for (const message of messages) {
+        const sender = message.sender;
+        const subject = message.subject;
+        const date = new Date(JSON.parse(message.message).date).toLocaleString();
+        const messageBody = JSON.parse(message.message).body;
+
+        const mailMessage = `👥 Expéditeur : ${sender}\n📝 Sujet : ${subject}\n🕜 Date : ${date}\n📩 Message : ${messageBody}`;
+
+        await ovl.sendMessage(ms_org, { text: mailMessage });
+      }
+      
+    } catch (error) {
+      console.error(error);
+      return ovl.sendMessage(ms_org, { text: "Une erreur est survenue lors de la récupération des messages de l'email temporaire." });
     }
   }
 );
