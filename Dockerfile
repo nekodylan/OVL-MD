@@ -7,7 +7,7 @@ WORKDIR /ovl_bot
 
 COPY package.json .
 
-RUN npm i
+RUN npm i --platform=linuxmusl --arch=x64 sharp && npm i
 
 COPY . .
 
