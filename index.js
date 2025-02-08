@@ -442,7 +442,7 @@ ovl.ev.on('group-participants.update', async (data) => {
     };
  
    try {
-            groupPic = await zk.profilePictureUrl(data.id, 'image');
+            groupPic = await ovl.profilePictureUrl(data.id, 'image');
         } catch {
             groupPic = 'https://files.catbox.moe/54ip7g.jpg';
    }
@@ -455,13 +455,15 @@ ovl.ev.on('group-participants.update', async (data) => {
 
         if (data.action === 'add' && welcome === 'oui') {
             const newMembers = data.participants.map(m => `@${m.split("@")[0]}`).join('\n');
-            const message = `🎉Bienvenue🎉 => ${newMembers}\n\n*Description:* ${groupInfo.desc || "Aucune description"}`;
+            const groupName = groupInfo.subject || "Groupe inconnu";
+            const totalMembers = groupInfo.participants.length;
+            const message = `🎉Bienvenue🎉 => ${newMembers}\nGroupe:${groupName}\nMembres: #${totalMembers}\n*Description:* ${groupInfo.desc || "Aucune description"}`;
             await ovl.sendMessage(data.id, { image: { url: groupPic }, caption: message, mentions: data.participants });
         }
 
         if (data.action === 'remove' && goodbye === 'oui') {
             const leftMembers = data.participants.map(m => `@${m.split("@")[0]}`).join('\n');
-            await ovl.sendMessage(data.id, { text: `👋 Au revoir ${leftMembers}`, mentions: data.participants });
+            await ovl.sendMessage(data.id, { text: `👋Au revoir ${leftMembers}`, mentions: data.participants });
         }
 
         if (data.action === 'promote' && antipromote === 'oui') {
