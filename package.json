@@ -6,7 +6,6 @@
   "scripts": {
     "start": "node index.js",
     "stop": "pm2 stop all",
-    "i": "npm install --platform=linuxmusl --arch=x64 sharp",
     "Ovl": "pm2 start index.js --attach --name ovl"
     },
   "keywords": ["Ainz", "Ovl-Md", "Baileys"],
@@ -34,7 +33,7 @@
     "pg": "^8.13.1",
     "pino": "^8.1.0",
     "pm2": "^5.4.2",
-    "sharp": "^0.32.6",
+    "sharp": "^0.33.5",
     "tempmail.lol": "^4.1.0",
     "sequelize": "^6.37.5",
     "wa-sticker-formatter": "^4.4.4",
