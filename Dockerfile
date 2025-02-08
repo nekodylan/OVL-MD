@@ -1,22 +1,16 @@
-FROM node:lts-alpine
+FROM node:lts-buster
 
-RUN RUN apk add --no-cache \
-    git \
+RUN apt-get update && apt-get install -y \
     ffmpeg \
-    vips \
-    vips-dev \
-    gcc \
-    g++ \
-    make \
-    python3
-    
+    && rm -rf /var/lib/apt/lists/*
+
 RUN git clone https://github.com/Ainz-fk/OVL-MD.git /ovl_bot
 
 WORKDIR /ovl_bot
 
 COPY package.json .
 
-RUN npm i --platform=linuxmusl --arch=x64 sharp && npm i
+RUN npm i
 
 COPY . .
 
