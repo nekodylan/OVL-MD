@@ -813,7 +813,7 @@ ovlcmd(
         const img = await ovl.dl_save_media_ms(msg_Repondu.imageMessage);
         await ovl.updateProfilePicture(jid, { url: img });
         ovl.sendMessage(jid, { text: "✅ La photo de profil du groupe a été mise à jour avec succès." });
-    } catch (error) {
+    } }catch (error) {
       console.error("Erreur lors du changement de PP :", error);
       ovl.sendMessage(jid, { text: "❌ Une erreur est survenue lors de la modification de la photo du groupe." });
     }
