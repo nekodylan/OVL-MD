@@ -4,7 +4,7 @@ const gis = require("g-i-s");
 const wiki = require('wikipedia');
 const { Sticker, StickerTypes } = require("wa-sticker-formatter");
 const config = require('../set');
-const translate = require('@vitalets/google-translate-api');
+const { translate } = require('@vitalets/google-translate-api');
 const acrcloud = require("acrcloud");
 const ytsr = require('@distube/ytsr');
 
@@ -301,8 +301,11 @@ ovlcmd(
                 return ovl.sendMessage(ms_org, { text: "❗ Impossible de trouver ce film ou cette série." });
             }
 
-            const translatedSynopsis = await translate(data.Plot, { to: 'fr' }).then(res => res.text).catch(() => data.Plot);
-
+            const trt_synopsis = await translate(data.Plot, { to: 'fr' }).then(res => res.text).catch(() => data.Plot);
+            const trt_langue = await translate(data.Language, { to: 'fr' }).then(res => res.text).catch(() => data.Language);
+            const trt_pays = await translate(data.Country, { to: 'fr' }).then(res => res.text).catch(() => data.Country);
+            const trt_rec = await translate(data.Awards, { to: 'fr' }).then(res => res.text).catch(() => data.Awards);
+            
             const imdbInfo = `⚍⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚍\n`
                 + `🎬 *IMDB MOVIE SEARCH*\n`
                 + `⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎\n`
@@ -315,10 +318,10 @@ ovlcmd(
                 + `*👨🏻‍💻 Réalisateur :* ${data.Director}\n`
                 + `*✍ Scénariste :* ${data.Writer}\n`
                 + `*👨 Acteurs :* ${data.Actors}\n`
-                + `*📃 Synopsis :* ${translatedSynopsis}\n`
-                + `*🌐 Langue :* ${data.Language}\n`
-                + `*🌍 Pays :* ${data.Country}\n`
-                + `*🎖️ Récompenses :* ${data.Awards || "Aucune"}\n`
+                + `*📃 Synopsis :* ${trt_synopsis}\n`
+                + `*🌐 Langue :* ${trt_langue}\n`
+                + `*🌍 Pays :* ${trt_pays}\n`
+                + `*🎖️ Récompenses :* ${trt_rec || "Aucune"}\n`
                 + `*📦 Box-office :* ${data.BoxOffice || "Non disponible"}\n`
                 + `*🏙️ Production :* ${data.Production || "Non spécifiée"}\n`
                 + `*🌟 Note IMDb :* ${data.imdbRating} ⭐\n`
@@ -481,14 +484,15 @@ ovlcmd(
       const episodes = data.episodes;
       const status = data.status;
 
-      const translatedSynopsis = await translate(synopsis, { to: 'fr' }).then(res => res.text).catch(() => synopsis);
-
-      const message = `✨ *ANIME ALÉATOIRE* ✨\n\n` +
+      const trts = await translate(synopsis, { to: 'fr' }).then(res => res.text).catch(() => synopsis);
+      const trt_status = await translate(status, { to: 'fr' }).then(res => res.text).catch(() => status);
+    
+        const message = `✨ *ANIME ALÉATOIRE* ✨\n\n` +
           `📺 *Titre* : ${title}\n` +
           `🎬 *Épisodes* : ${episodes}\n` +
-          `📡 *Statut* : ${status}\n` +
-          `📝 *Synopsis* : ${translatedSynopsis}\n\n` +
-          `🔗 *URL* : ${data.url}\n`;
+          `📡 *Statut* : ${trt_status}\n` +
+          `🔗 *URL* : ${data.url}\n` +
+          `📝 *Synopsis* : ${trts}\n`
 
       await ovl.sendMessage(ms_org, {
         image: { url: imageUrl },
@@ -514,7 +518,7 @@ ovlcmd(
 
 
     const mediaMessage =
-      msg_Repondu.imageMessage ||
+      msg_Repondu.audioMessage ||
       msg_Repondu.videoMessage;
 
     if (!mediaMessage) {
