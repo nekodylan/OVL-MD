@@ -529,9 +529,9 @@ ovlcmd(
 
     try {
       let acr = new acrcloud({
-        host: 'identify-ap-southeast-1.acrcloud.com',
-        access_key: '26afd4eec96b0f5e5ab16a7e6e05ab37',
-        access_secret: 'wXOZIqdMNZmaHJP1YDWVyeQLg579uK2CfY6hWMN8'
+        host: 'identify-eu-west-1.acrcloud.com',
+        access_key: '9fd8f6925597d096c5cb9a90ba29a491',
+        access_secret: 'qJkPlGPl6bS6NbohMM7Q6HOWdMPH74ccg4AwyEBw'
       });
 
       let buffer = await ovl.dl_save_media_ms(mediaMessage);
@@ -561,7 +561,7 @@ ovlcmd(
 ovlcmd(
     {
         nom_cmd: "ytsearch",
-        classe: "Recherche",
+        classe: "Search",
         react: "🎵",
         desc: "Recherche une chanson depuis YouTube avec un terme de recherche",
         alias: ['yts']
