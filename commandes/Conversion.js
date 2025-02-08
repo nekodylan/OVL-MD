@@ -1,7 +1,6 @@
 const { ovlcmd } = require("../framework/ovlcmd");
 const { Catbox } = require('node-catbox');
 const fs = require("fs");
-const { loadImage, createCanvas } = require("@napi-rs/canvas");
 const { Sticker, StickerTypes } = require("wa-sticker-formatter");
 const { execSync, exec } = require("child_process");
 const path = require('path');
@@ -11,6 +10,7 @@ const axios = require('axios');
 const FormData = require('form-data');
 const { readFileSync } = require('fs');
 const catbox = new Catbox();
+const sharp = require('sharp');
 
 async function uploadToCatbox(filePath) {
   try {
@@ -344,9 +344,50 @@ ovlcmd(
     }
   );
 
-  // Commande Write
+    // Commande ToImage
 
- ovlcmd(
+ovlcmd(
+  {
+    nom_cmd: "toimage",
+    classe: "Conversion",
+    react: "✍️",
+    desc: "Convertit un sticker en image",
+    alias: ["toimg"],
+  },
+  async (ms_org, ovl, cmd_options) => {
+    const { msg_Repondu, ms } = cmd_options;
+
+    if (!msg_Repondu || !msg_Repondu.stickerMessage) {
+      return ovl.sendMessage(ms_org, { text: "Répondez à un sticker." });
+    }
+
+    try {
+      const stickerBuffer = await ovl.dl_save_media_ms(msg_Repondu.stickerMessage);
+
+      const imageBuffer = await sharp(stickerBuffer).webp().toBuffer();
+
+      const fileName = `${Math.floor(Math.random() * 10000)}.png`;
+      await sharp(imageBuffer).toFile(fileName);
+
+      await ovl.sendMessage(
+        ms_org,
+        { image: fs.readFileSync(fileName) },
+        { quoted: ms }
+      );
+
+      fs.unlinkSync(fileName);
+    } catch (error) {
+      console.error("Erreur lors de la conversion du sticker en image:", error);
+      await ovl.sendMessage(ms_org, {
+        text: `Erreur lors de la conversion en image : ${error.message}`,
+      });
+    }
+  }
+);
+
+// Commande Write
+
+ovlcmd(
   {
     nom_cmd: "write",
     classe: "Conversion",
@@ -375,42 +416,30 @@ ovlcmd(
 
     try {
       const media = await ovl.dl_save_media_ms(mediaMessage);
-      const image = await loadImage(media);
 
-      const canvas = createCanvas(image.width, image.height);
-      const context = canvas.getContext("2d");
+      const image = sharp(media);
 
-      context.drawImage(image, 0, 0, canvas.width, canvas.height);
-
-     // const fontSize = Math.floor(canvas.height / 5);
-      context.font = "bold 60px Arial";
-      context.textAlign = "center";
-      context.fillStyle = "white";
-
-      context.strokeStyle = "black";
-      context.lineWidth = 8;
+      const { width, height } = await image.metadata();
 
       const text = arg.join(" ").toUpperCase();
 
-      const x = canvas.width / 2;
-      const y = canvas.height * 0.9;
-
-      for (let i = -2; i <= 2; i++) {
-        for (let j = -2; j <= 2; j++) {
-          context.strokeText(text, x + i, y + j);
-        }
-      }
-      context.fillText(text, x, y);
-
-      const outputBuffer = canvas.toBuffer("image/png");
-      const sticker = new Sticker(outputBuffer, {
-        pack: config.STICKER_PACK_NAME,
-        author: config.STICKER_AUTHOR_NAME,
-        type: StickerTypes.FULL,
-      });
+      const modifiedImage = await image
+        .composite([
+          {
+            input: Buffer.from(
+              `<svg width="${width}" height="${height}">
+                <text x="50%" y="${height - 40}" font-size="80" font-family="Arial" fill="white" text-anchor="middle" stroke="black" stroke-width="5">${text}</text>
+              </svg>`
+            ),
+            top: 0,
+            left: 0,
+          },
+        ])
+        .toBuffer();
 
       const fileName = `${Math.floor(Math.random() * 10000)}.webp`;
-      await sticker.toFile(fileName);
+
+      await sharp(modifiedImage).webp().toFile(fileName);
 
       await ovl.sendMessage(
         ms_org,
@@ -423,52 +452,6 @@ ovlcmd(
     } catch (error) {
       await ovl.sendMessage(ms_org, {
         text: `Une erreur est survenue lors de l'ajout du texte : ${error.message}`,
-      });
-    }
-  }
-);
-
-  // Commande ToImage
-  ovlcmd(
-  {
-    nom_cmd: "toimage",
-    classe: "Conversion",
-    react: "✍️",
-    desc: "Convertit un sticker en image",
-    alias: ["toimg"],
-  },
-  async (ms_org, ovl, cmd_options) => {
-    const { msg_Repondu, ms } = cmd_options;
-
-    if (!msg_Repondu || !msg_Repondu.stickerMessage) {
-      return ovl.sendMessage(ms_org, { text: "Répondez à un sticker." });
-    }
-
-    try {
-      const stickerBuffer = await ovl.dl_save_media_ms(msg_Repondu.stickerMessage);
-      const image = await loadImage(stickerBuffer);
-
-      const canvas = createCanvas(image.width, image.height);
-      const context = canvas.getContext("2d");
-
-      context.drawImage(image, 0, 0);
-
-      const outputBuffer = canvas.toBuffer("image/png");
-
-      const fileName = alea(".png");
-      fs.writeFileSync(fileName, outputBuffer);
-
-      await ovl.sendMessage(
-        ms_org,
-        { image: fs.readFileSync(fileName) },
-        { quoted: ms }
-      );
-
-      fs.unlinkSync(fileName);
-    } catch (error) {
-      console.error("Erreur lors de la conversion du sticker en image:", error);
-      await ovl.sendMessage(ms_org, {
-        text: `Erreur lors de la conversion en image : ${error.message}`,
       });
     }
   }
