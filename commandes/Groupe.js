@@ -768,24 +768,87 @@ ovlcmd(
 
 ovlcmd(
   {
-    nom_cmd: "gpp",
+    nom_cmd: "getpp",
     classe: "Groupe",
-    react: "🎨",
-    desc: "Commande pour changer la pp d'un groupe",
+    react: "🔎",
+    desc: "Affiche la pp d'un groupe",
+    alias: ["gpp"]
   },
   async (jid, ovl, cmd_options) => {
-    const { arg, verif_Groupe } = cmd_options;
-    if (!verif_Groupe) {
-      return ovl.sendMessage(jid, { text: `Vous n'avez pas les permissions requises pour quitter ce groupe.` });
-    }; if(!arg) { ovl.sendMessage(jid, { text: `Mentionnez un lien` });
-      const url = arg.join(' ');
-                 try {
-    await ovl.updateProfilePicture(jid, { url: url })
-                 } catch (error) {
-                     console.error(error);
-                }
-  }}
+    try {
+      const ppgroup = await ovl.profilePictureUrl(jid, 'image');
+      await ovl.sendMessage(jid, { image: { url: ppgroup } }, { quoted: cmd_options.ms });
+    } catch (error) {
+      console.error("Erreur lors de l'obtention de la photo de profil :", error);
+      await ovl.sendMessage(jid, "Désolé, je n'ai pas pu obtenir la photo de profil du groupe.", { quoted: cmd_options.ms });
+    }
+  }
 );
+
+ovlcmd(
+  {
+    nom_cmd: "updatepp",
+    classe: "Groupe",
+    react: "🎨",
+    desc: "Commande pour changer la photo de profil d'un groupe",
+    alias: ["upp"]
+  },
+  async (jid, ovl, cmd_options) => {
+    const { arg, verif_Groupe, msg_Repondu, verif_Admin, prenium_id, verif_Ovl_Admin } = cmd_options;
+
+    if (!(verif_Admin || prenium_id)) {
+      return ovl.sendMessage(jid, { text: `Vous n'avez pas les permissions requises pour modifier la photo du groupe.` });
+    }
+
+    if (!verif_Ovl_Admin) {
+      return ovl.sendMessage(jid, { text: "Je dois être administrateur pour effectuer cette action." });
+    }
+
+    if (!msg_Repondu || !msg_Repondu.imageMessage) {
+      return ovl.sendMessage(jid, { text: `Mentionnez une image.` });
+    }
+
+    try {
+      if (msg_Repondu?.imageMessage) {
+        const img = await ovl.dl_save_media_ms(msg_Repondu.imageMessage);
+        await ovl.updateProfilePicture(jid, { url: img });
+        ovl.sendMessage(jid, { text: "✅ La photo de profil du groupe a été mise à jour avec succès." });
+    } catch (error) {
+      console.error("Erreur lors du changement de PP :", error);
+      ovl.sendMessage(jid, { text: "❌ Une erreur est survenue lors de la modification de la photo du groupe." });
+    }
+  }
+);
+
+ovlcmd(
+  {
+    nom_cmd: "removepp",
+    classe: "Groupe",
+    react: "🗑️",
+    desc: "Commande pour supprimer la photo de profil d'un groupe",
+    alias: ["rpp"]
+  },
+  async (jid, ovl, cmd_options) => {
+    const { verif_Groupe, verif_Admin, prenium_id, verif_Ovl_Admin } = cmd_options;
+
+    if (!(verif_Admin || prenium_id)) {
+      return ovl.sendMessage(jid, { text: `Vous n'avez pas les permissions requises pour supprimer la photo du groupe.` });
+    }
+
+    if (!verif_Ovl_Admin) {
+      return ovl.sendMessage(jid, { text: "Je dois être administrateur pour effectuer cette action." });
+    }
+
+    try {
+      await ovl.removeProfilePicture(jid);
+      ovl.sendMessage(jid, { text: "✅ La photo de profil du groupe a été supprimée avec succès." });
+    } catch (error) {
+      console.error("Erreur lors de la suppression de la PP :", error);
+      ovl.sendMessage(jid, { text: "❌ Une erreur est survenue lors de la suppression de la photo du groupe." });
+    }
+  }
+);
+
 
 ovlcmd(
   {
