@@ -150,7 +150,7 @@ ovlcmd(
             return repondre("Veuillez mentionner un message en vue unique.");
         }
 
-        let _vue_Unique_Message = msg_Repondu.viewOnceMessage ?? msg_Repondu.viewOnceMessageV2 ?? msg_Repondu.viewOnceMessageV2Extension;
+        let _vue_Unique_Message = msg_Repondu.imageMessage || msg_Repondu.videoMessage || msg_Repondu.audioMessage;
 
         if (!_vue_Unique_Message) {
             return repondre("Le message sélectionné n'est pas en mode vue unique.");
@@ -160,16 +160,16 @@ ovlcmd(
             let _media;
             let options = { quoted: ms };
 
-            if (_vue_Unique_Message.message.imageMessage) {
-                _media = await ovl.dl_save_media_ms(_vue_Unique_Message.message.imageMessage);
-                await ovl.sendMessage(_ms_org, { image: { url: _media }, caption: _vue_Unique_Message.message.imageMessage.caption }, options);
+            if (msg_Repondu.imageMessage) {
+                _media = await ovl.dl_save_media_ms(msg_Repondu.imageMessage);
+                await ovl.sendMessage(_ms_org, { image: { url: _media }, caption: msg_Repondu.imageMessage.caption }, options);
 
-            } else if (_vue_Unique_Message.message.videoMessage) {
-                _media = await ovl.dl_save_media_ms(_vue_Unique_Message.message.videoMessage);
-                await ovl.sendMessage(_ms_org, { video: { url: _media }, caption: _vue_Unique_Message.message.videoMessage.caption }, options);
+            } else if (msg_Repondu.videoMessage) {
+                _media = await ovl.dl_save_media_ms(msg_Repondu.videoMessage);
+                await ovl.sendMessage(_ms_org, { video: { url: _media }, caption: msg_Repondu.videoMessage.caption }, options);
 
-            } else if (_vue_Unique_Message.message.audioMessage) {
-                _media = await ovl.dl_save_media_ms(_vue_Unique_Message.message.audioMessage);
+            } else if (msg_Repondu.audioMessage) {
+                _media = await ovl.dl_save_media_ms(msg_Repondu.audioMessage);
                 await ovl.sendMessage(_ms_org, { audio: { url: _media }, mimetype: "audio/mp4", ptt: false }, options);
 
             } else {
