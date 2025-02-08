@@ -1,7 +1,16 @@
 FROM node:lts-alpine
 
-RUN apk add --no-cache git ffmpeg && \
-    git clone https://github.com/Ainz-fk/OVL-MD.git /ovl_bot
+RUN RUN apk add --no-cache \
+    git \
+    ffmpeg \
+    vips \
+    vips-dev \
+    gcc \
+    g++ \
+    make \
+    python3
+    
+RUN git clone https://github.com/Ainz-fk/OVL-MD.git /ovl_bot
 
 WORKDIR /ovl_bot
 
