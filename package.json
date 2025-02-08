@@ -34,6 +34,7 @@
     "pg": "^8.13.1",
     "pino": "^8.1.0",
     "pm2": "^5.4.2",
+    "sharp": "^0.32.6",
     "tempmail.lol": "^4.1.0",
     "sequelize": "^6.37.5",
     "wa-sticker-formatter": "^4.4.4",
