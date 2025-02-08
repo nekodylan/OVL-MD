@@ -428,7 +428,7 @@ ovlcmd(
           {
             input: Buffer.from(
               `<svg width="${width}" height="${height}">
-                <text x="50%" y="${height - 40}" font-size="80" font-family="Arial" fill="white" text-anchor="middle" stroke="black" stroke-width="5">${text}</text>
+                <text x="50%" y="${height - 40}" font-size="80" font-family="Arial" fill="white" text-anchor="middle" stroke="white" stroke-width="9">${text}</text>
               </svg>`
             ),
             top: 0,
