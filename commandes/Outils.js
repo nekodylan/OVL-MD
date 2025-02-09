@@ -497,7 +497,7 @@ ovlcmd(
         const email = emails[i];
         const sender = email.sender;
         const subject = email.subject;
-        onst date = new Date(email.date).toLocaleString();
+        const date = new Date(email.date).toLocaleString();
 
         const messageBody = email.body;
 
