@@ -3,6 +3,8 @@ const config = require("../set");
 const { translate } = require('@vitalets/google-translate-api');
 const prefixe = config.PREFIXE;
 const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
 
 ovlcmd(
     {
@@ -385,3 +387,63 @@ ovlcmd(
     });
   }
 );
+
+ovlcmd(
+    {
+        nom_cmd: "qr",
+        classe: "Outils",
+        desc: "Génère un QR code pour obtenir une session_id.",
+    },
+    async (ms_org, ovl, cmd_options) => {
+        const { ms } = cmd_options;
+        
+        try {
+            const response = await axios.get(`https://quickest-elise-ainz-oest-org-53269c8e.koyeb.app/qr`);
+            const qrImageBase64 = response.data;
+
+            const filePath = path.join(__dirname, 'qr_code.png');  
+
+            fs.writeFile(filePath, qrImageBase64, 'base64', async (err) => {
+                if (err) {
+                    console.error("Erreur lors de l'écriture du fichier :", err);
+                    await ovl.sendMessage(ms_org, { text: "Désolé, il y a eu une erreur lors de la génération du QR code." });
+                } else {
+                    console.log("Image sauvegardée avec succès !");
+                    
+                    await ovl.sendMessage(ms_org, {
+                        image: { url: filePath, caption: "Scannez ce QR code" }
+                    }, { quoted: ms });
+                }
+            });
+
+        } catch (error) {
+            console.error("Erreur lors de la génération du QR code:", error);
+            await ovl.sendMessage(ms_org, { text: "Désolé, il y a eu une erreur lors de la génération du QR code." });
+        }
+    }
+);
+
+ovlcmd(
+    {
+        nom_cmd: "pair",
+        classe: "Outils",
+        desc: "Génère un pair_code pour obtenir une session_id",
+    },
+    async (ms_org, ovl, cmd_options) => {
+        const { arg, ms } = cmd_options;
+        const bc = arg.join(" ");
+
+        try {
+            let response = await axios(`https://quickest-elise-ainz-oest-org-53269c8e.koyeb.app/code?number=${bc}`);
+            let code = response.data.code || "indisponible";
+
+            await ovl.sendMessage(ms_org, {
+                text: `CODE : ${code}`,
+            }, { quoted: ms });
+        } catch (error) {
+            console.error("Erreur lors de la génération du code:", error);
+            await ovl.sendMessage(ms_org, { text: "Désolé, il y a eu une erreur lors de la génération du code." });
+        }
+    }
+);
+
