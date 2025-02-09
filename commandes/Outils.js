@@ -451,7 +451,7 @@ ovlcmd(
 ovlcmd(
   {
     nom_cmd: "tempmail",
-    classe: "utilitaire",
+    classe: "Outils",
     react: "📧",
     desc: "Crée un email temporaire."
   },
@@ -476,7 +476,7 @@ ovlcmd(
 ovlcmd(
   {
     nom_cmd: "tempinbox",
-    classe: "utilitaire",
+    classe: "Outils",
     react: "📩",
     desc: "Récupère les messages d'un email temporaire."
   },
