@@ -5,7 +5,6 @@ const wiki = require('wikipedia');
 const { Sticker, StickerTypes } = require("wa-sticker-formatter");
 const config = require('../set');
 const { translate } = require('@vitalets/google-translate-api');
-const acrcloud = require("acrcloud");
 const ytsr = require('@distube/ytsr');
 
 ovlcmd(
@@ -116,40 +115,31 @@ ovlcmd(
     }
 );*/
 
+const { ovlcmd, cmd } = require("../framework/ovlcmd");
+
+const LyricsFinder = require('@faouzkk/lyrics-finder');
+
 ovlcmd(
     {
-        nom_cmd: "lyrics",
+        nom_cmd: "lyris",
         classe: "search",
         react: "🎵",
         desc: "Cherche les paroles d'une chanson"
     },
     async (ms_org, ovl, cmd_options) => {
-        const { arg } = cmd_options;
+        const { arg, ms } = cmd_options;
         const songName = arg.join(" ");
         if (!songName) {
             return ovl.sendMessage(ms_org, { text: "Veuillez fournir un nom de chanson pour obtenir les paroles." });
         }
 
         try {
-            const apiUrl = `https://api.genius.com/search?q=${encodeURIComponent(songName)}`;
-const response = await axios.get(apiUrl, {
-    headers: {
-        'Authorization': `Bearer tnxIXZ2Q6pQ5Av_XbPjF0No5SJnYAPW6_haNi1PjDs2euV1IuPeDhxs5FzRs7mSH`
-    }
-});
-
-            const song = response.data.response.hits[0]?.result;
-            if (!song) {
+            const lyrics = await LyricsFinder(songName);
+            const mess = `🎸OVL-MD LYRICS FINDER🥁\n\n🎼PAROLES =>\n\n${lyrics}`;
+            if (!lyrics) {
                 return ovl.sendMessage(ms_org, { text: "Désolé, je n'ai pas trouvé les paroles pour cette chanson." });
             }
-
-            const lyricsUrl = song.url;
-            const title = song.title;
-            const artist = song.primary_artist.name;
-
-            const lyricsMessage = `*🎵Titre :* ${title}\n*🎤Artiste :* ${artist}\n*🔗URL des paroles :* ${lyricsUrl}`;
-
-            await ovl.sendMessage(ms_org, { text: lyricsMessage });
+            await ovl.sendMessage(ms_org, { text: mess }, {quoted: ms});
         } catch (error) {
             console.error("Erreur lors de la recherche des paroles :", error.message);
             ovl.sendMessage(ms_org, { text: "Une erreur s'est produite lors de la recherche des paroles." });
@@ -506,7 +496,7 @@ ovlcmd(
   }
 );
 
-ovlcmd(
+/*ovlcmd(
   {
     nom_cmd: "shazam",
     classe: "search",
@@ -556,12 +546,12 @@ ovlcmd(
       ovl.sendMessage(ms_org, { text: "Erreur lors de l'identification." });
     }
   }
-);
+);*/
 
 ovlcmd(
     {
         nom_cmd: "ytsearch",
-        classe: "Search",
+        classe: "search",
         react: "🎵",
         desc: "Recherche une chanson depuis YouTube avec un terme de recherche",
         alias: ['yts']
