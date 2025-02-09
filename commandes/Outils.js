@@ -5,6 +5,7 @@ const prefixe = config.PREFIXE;
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
+const { TempMail } = require("tempmail.lol");
 
 ovlcmd(
     {
@@ -447,3 +448,67 @@ ovlcmd(
     }
 );
 
+ovlcmd(
+  {
+    nom_cmd: "tempmail",
+    classe: "utilitaire",
+    react: "📧",
+    desc: "Crée un email temporaire."
+  },
+  async (ms_org, ovl, cmd_options) => {
+    const { ms } = cmd_options;
+
+    try {
+      const tempmail = new TempMail();
+      const inbox = await tempmail.createInbox();
+      
+      const emailMessage = `Voici votre adresse email temporaire : ${inbox.address}\n\nVotre token est : ${inbox.token}\n\nPour récupérer vos messages, utilisez <tempinbox votre-token>.`;
+
+      await ovl.sendMessage(ms_org, { text: emailMessage }, {quoted: ms});
+      
+    } catch (error) {
+      console.error(error);
+      return ovl.sendMessage(ms_org, { text: "Une erreur s'est produite lors de la création de l'email temporaire." });
+    }
+  }
+);
+
+ovlcmd(
+  {
+    nom_cmd: "tempinbox",
+    classe: "utilitaire",
+    react: "📩",
+    desc: "Récupère les messages d'un email temporaire."
+  },
+  async (ms_org, ovl, cmd_options) => {
+    const { arg, ms } = cmd_options;
+
+    if (!arg[0]) return ovl.sendMessage(ms_org, { text: "Pour récupérer les messages de votre email temporaire, fournissez le token qui a été émis." });
+
+    try {
+      const tempmail = new TempMail();
+      const emails = await tempmail.checkInbox(arg[0]);
+
+      if (!emails || emails.length === 0) {
+        return ovl.sendMessage(ms_org, { text: "Aucun message trouvé pour ce token." }, {quoted: ms});
+      }
+
+      for (let i = 0; i < emails.length; i++) {
+        const email = emails[i];
+        const sender = email.sender;
+        const subject = email.subject;
+        onst date = new Date(email.date).toLocaleString();
+
+        const messageBody = email.body;
+
+        const mailMessage = `👥 Expéditeur : ${sender}\n📝 Sujet : ${subject}\n🕜 Date : ${date}\n📩 Message : ${messageBody}`;
+
+        await ovl.sendMessage(ms_org, { text: mailMessage }, {quoted: ms});
+      }
+      
+    } catch (error) {
+      console.error(error);
+      return ovl.sendMessage(ms_org, { text: "Une erreur est survenue lors de la récupération des messages de l'email temporaire." }, {quoted: ms});
+    }
+  }
+);
