@@ -68,7 +68,7 @@ ovlcmd(
 
             await ovl.sendMessage(ms_org, { image: { url: videoInfo.thumbnail }, caption });
 
-            await sendMedia(ms_org, ovl, song.url, "ogg", "audio");
+            await sendMedia(ms_org, ovl, videoInfo.url, "ogg", "audio");
         } catch (error) {
             console.error("Erreur Song Downloader:", error.message);
             await ovl.sendMessage(ms_org, { text: "Erreur lors du téléchargement." });
