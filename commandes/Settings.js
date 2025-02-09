@@ -4,7 +4,9 @@ const config = require('../set');
 const os = require('os');
 
 const RENDER_API_KEY = config.RENDER_API_KEY;
-const SERVICE_ID = os.hostname();
+const host = os.hostname();
+const SERVICE_ID = host.split("-hibernate")[0]; 
+
 const headers = {
   Authorization: `Bearer ${RENDER_API_KEY}`,
   "Content-Type": "application/json",
