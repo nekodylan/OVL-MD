@@ -13,8 +13,8 @@
   "license": "MIT",
   "dependencies": {
     "@distube/ytsr": "^2.0.4",
+    "@faouzkk/lyrics-finder": "^1.0.3",
     "@vitalets/google-translate-api": "^9.2.0",
-    "acrcloud": "^1.4.0",
     "axios": "^1.4.0",
     "cheerio": "^1.0.0-rc.12",
     "cookie": "^0.5.0",
