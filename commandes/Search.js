@@ -6,6 +6,7 @@ const { Sticker, StickerTypes } = require("wa-sticker-formatter");
 const config = require('../set');
 const { translate } = require('@vitalets/google-translate-api');
 const ytsr = require('@distube/ytsr');
+const LyricsFinder = require('@faouzkk/lyrics-finder');
 
 ovlcmd(
     {
@@ -115,13 +116,9 @@ ovlcmd(
     }
 );*/
 
-const { ovlcmd, cmd } = require("../framework/ovlcmd");
-
-const LyricsFinder = require('@faouzkk/lyrics-finder');
-
 ovlcmd(
     {
-        nom_cmd: "lyris",
+        nom_cmd: "lyrics",
         classe: "search",
         react: "🎵",
         desc: "Cherche les paroles d'une chanson"
