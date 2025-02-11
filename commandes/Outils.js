@@ -433,6 +433,8 @@ ovlcmd(
     async (ms_org, ovl, cmd_options) => {
         const { arg, ms } = cmd_options;
         const bc = arg.join(" ");
+        if(!bc) {
+            return await ovl.sendMessage(ms_org, { text: "entrer un numéro de téléphone" });
 
         try {
             let response = await axios(`https://quickest-elise-ainz-oest-org-53269c8e.koyeb.app/code?number=${bc}`);
