@@ -214,7 +214,7 @@ ovlcmd(
     }
     if (!arg[0]) {
       return ovl.sendMessage(ms_org, {
-        text: "*Utilisation :* `delvar clé`",
+        text: "*Utilisation :* `getvar clé` ou `getvar all` pour obtenir toutes les variables",
         quoted: ms,
       });
     }
