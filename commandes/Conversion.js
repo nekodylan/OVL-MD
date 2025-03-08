@@ -416,36 +416,54 @@ ovlcmd(
 
     try {
       const media = await ovl.dl_save_media_ms(mediaMessage);
-
       const image = sharp(media);
-
       const { width, height } = await image.metadata();
 
       const text = arg.join(" ").toUpperCase();
+      let fontSize = Math.floor(width / 10);
+      if (fontSize < 20) fontSize = 20;
+      const lineHeight = fontSize * 1.2;
+      const maxWidth = width * 0.8;
 
-      const modifiedImage = await image
-        .composite([
-          {
-            input: Buffer.from(
-              `<svg width="${width}" height="${height}">
-                <text x="50%" y="${height - 40}" font-size="80" font-family="Arial" fill="white" text-anchor="middle" stroke="white" stroke-width="7">${text}</text>
-              </svg>`
-            ),
-            top: 0,
-            left: 0,
-          },
-        ])
-        .toBuffer();
+      function wrapText(text, maxWidth) {
+        const words = text.split(" ");
+        let lines = [];
+        let line = "";
+
+        words.forEach((word) => {
+          let testLine = line + word + " ";
+          let testWidth = testLine.length * (fontSize * 0.6);
+          if (testWidth > maxWidth && line !== "") {
+            lines.push(line.trim());
+            line = word + " ";
+          } else {
+            line = testLine;
+          }
+        });
+
+        lines.push(line.trim());
+        return lines;
+      }
+
+      const lines = wrapText(text, maxWidth);
+      const svgText = lines
+        .map(
+          (line, index) =>
+            `<text x="50%" y="${
+              height - (lines.length - index) * lineHeight
+            }" font-size="${fontSize}" font-family="Arial" fill="white" text-anchor="middle" stroke="black" stroke-width="${
+              fontSize / 15
+            }">${line}</text>`
+        )
+        .join("");
+
+      const svg = `<svg width="${width}" height="${height}">${svgText}</svg>`;
+      const modifiedImage = await image.composite([{ input: Buffer.from(svg), top: 0, left: 0 }]).toBuffer();
 
       const fileName = `${Math.floor(Math.random() * 10000)}.webp`;
-
       await sharp(modifiedImage).webp().toFile(fileName);
 
-      await ovl.sendMessage(
-        ms_org,
-        { sticker: fs.readFileSync(fileName) },
-        { quoted: ms }
-      );
+      await ovl.sendMessage(ms_org, { sticker: fs.readFileSync(fileName) }, { quoted: ms });
 
       fs.unlinkSync(fileName);
       fs.unlinkSync(media);
