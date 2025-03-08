@@ -119,20 +119,23 @@ async function getGitCommit() {
   try {
     const response = await axios.get(
       `https://api.github.com/repos/Ainz-fk/OVL-MD/commits`,
-      { headers: { Accept: "application/vnd.github.v3+json" } }
+      {
+        headers: {
+          Accept: "application/vnd.github.v3+json",
+          Authorization: `Bearer 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`
+        }
+      }
     );
 
-    console.log(response.data); // Vérifie si GitHub renvoie bien les commits
-
     if (!response.data || response.data.length === 0) {
-      throw new Error("No commits found for the repository.");
+      throw new Error("Aucun commit trouvé pour ce dépôt.");
     }
 
     const lastCommit = response.data[0];
     return lastCommit.sha;
   } catch (error) {
     console.error(error.message);
-    throw new Error("Unable to fetch the last commit from GitHub.");
+    throw new Error("Impossible de récupérer le dernier commit depuis GitHub.");
   }
 }
 
