@@ -449,9 +449,11 @@ ovl.ev.on('group-participants.update', async (data) => {
         const { welcome, goodbye, antipromote, antidemote } = settings;
 
         for (const participant of data.participants) {
+         let profilePic;
             try {
                 profilePic = await ovl.profilePictureUrl(participant, 'image');
-            } catch {
+            } catch (err) {
+             console.error(err);
                 profilePic = 'https://files.catbox.moe/54ip7g.jpg';
             }
 
