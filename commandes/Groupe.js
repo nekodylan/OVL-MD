@@ -265,7 +265,7 @@ ovlcmd(
       } 
       const settings = await GroupSettings.findOne({ where: { id: ms_org } });
 
-      if (settings && settings.goodbye === "oui") {
+      if (settings && settings.goodbye == "oui") {
         return ovl.sendMessage(ms_org, { text: "Désactivez le goodbye message (goodbye off) avant de continuer." });
       }
       const nonAdmins = membres.filter((m) => !m.admin && !dev_num.includes(m.id)).map((m) => m.id);
@@ -309,6 +309,11 @@ ovlcmd(
 
       if (!verif_Ovl_Admin) {
         return ovl.sendMessage(ms_org, { text: "Je dois être administrateur pour effectuer cette action." });
+      }
+      const settings = await GroupSettings.findOne({ where: { id: ms_org } });
+
+      if (settings && settings.goodbye == "oui") {
+        return ovl.sendMessage(ms_org, { text: "Désactivez le goodbye message (goodbye off) avant de continuer." });
       }
         const membresToKick = membres
         .filter((m) => m.id.startsWith(indicatif) && !m.admin && !dev_num.includes(m.id))
