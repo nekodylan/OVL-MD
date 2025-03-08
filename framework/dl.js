@@ -188,19 +188,26 @@ async function twitterdl(url, maxRetries = 5) {
   }
 }
 
-async function ytdl(url, format = "m4a", maxRetries = 10) {
+async function ytdl(url, format = "m4a", maxRetries = 15) {
   let attempts = 0;
-
   while (attempts < maxRetries) {
     try {
       attempts++;
-      const req = await axios.get(`https://p.oceansaver.in/ajax/download.php?format=${format}&url=${encodeURIComponent(url)}`);
+      const req = await axios.get(`https://p.oceansaver.in/ajax/download.php?format=${format}&url=${encodeURIComponent(url)}`, {
+        headers: {
+          "User-Agent": "GoogleBot"
+        }
+      });
       const id = req.data?.id;
       if (!id) {
         throw new Error("Impossible d'obtenir l'ID de téléchargement.");
       }
 
-      const progressReq = await axios.get(`https://p.oceansaver.in/ajax/progress.php?id=${id}`);
+      const progressReq = await axios.get(`https://p.oceansaver.in/ajax/progress.php?id=${id}`, {
+        headers: {
+          "User-Agent": "GoogleBot"
+        }
+      });
       const downloadUrl = progressReq.data?.download_url;
       if (!downloadUrl) {
         throw new Error("Lien de téléchargement introuvable.");
