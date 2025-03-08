@@ -122,6 +122,8 @@ async function getGitCommit() {
       { headers: { Accept: "application/vnd.github.v3+json" } }
     );
 
+    console.log(response.data); // Vérifie si GitHub renvoie bien les commits
+
     if (!response.data || response.data.length === 0) {
       throw new Error("No commits found for the repository.");
     }
@@ -129,7 +131,7 @@ async function getGitCommit() {
     const lastCommit = response.data[0];
     return lastCommit.sha;
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
     throw new Error("Unable to fetch the last commit from GitHub.");
   }
 }
