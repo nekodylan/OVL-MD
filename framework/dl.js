@@ -190,24 +190,52 @@ async function twitterdl(url, maxRetries = 5) {
 
 async function ytdl(url, format = "m4a", maxRetries = 15) {
   let attempts = 0;
+
   while (attempts < maxRetries) {
     try {
       attempts++;
-      const req = await axios.get(`https://p.oceansaver.in/ajax/download.php?format=${format}&url=${encodeURIComponent(url)}`, {
+
+      const response = await axios.get("https://en.loader.to/4/", {
         headers: {
-          "User-Agent": "GoogleBot"
-        }
+          "User-Agent": "GoogleBot",
+        },
+        maxRedirects: 5,
       });
+
+      const cookies = response.headers["set-cookie"] || [];
+      const initialCookies = cookies
+        .map((cookieStr) => cookie.parse(cookieStr))
+        .reduce((acc, curr) => ({ ...acc, ...curr }), {});
+
+      const sessionCookies = Object.entries(initialCookies)
+        .map(([key, value]) => cookie.serialize(key, value))
+        .join("; ");
+
+      const req = await axios.get(
+        `https://p.oceansaver.in/ajax/download.php?format=${format}&url=${encodeURIComponent(url)}`,
+        {
+          headers: {
+            "User-Agent": "GoogleBot",
+            "cookie": sessionCookies,
+          },
+        }
+      );
+
       const id = req.data?.id;
       if (!id) {
         throw new Error("Impossible d'obtenir l'ID de téléchargement.");
       }
 
-      const progressReq = await axios.get(`https://p.oceansaver.in/ajax/progress.php?id=${id}`, {
-        headers: {
-          "User-Agent": "GoogleBot"
+      const progressReq = await axios.get(
+        `https://p.oceansaver.in/ajax/progress.php?id=${id}`,
+        {
+          headers: {
+            "User-Agent": "GoogleBot",
+            "cookie": sessionCookies,
+          },
         }
-      });
+      );
+
       const downloadUrl = progressReq.data?.download_url;
       if (!downloadUrl) {
         throw new Error("Lien de téléchargement introuvable.");
@@ -218,10 +246,8 @@ async function ytdl(url, format = "m4a", maxRetries = 15) {
       if (attempts >= maxRetries) {
         throw error;
       }
- 
       await new Promise((resolve) => setTimeout(resolve, 2000));
     }
   }
-}
 
 module.exports = { fbdl, ttdl, igdl, twitterdl, ytdl };
