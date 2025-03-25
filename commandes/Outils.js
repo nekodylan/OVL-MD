@@ -151,39 +151,49 @@ ovlcmd(
         if (!msg_Repondu) {
             return repondre("Veuillez mentionner un message en vue unique.");
         }
- 
+
         let viewOnceKey = Object.keys(msg_Repondu).find(key => key.startsWith("viewOnceMessage"));
-        if (!viewOnceKey) {
-            return repondre("Le message sélectionné n'est pas en mode vue unique.");
+        let vue_Unique_Message = msg_Repondu;
+
+        if (viewOnceKey) {
+            vue_Unique_Message = msg_Repondu[viewOnceKey].message;
         }
 
-        let vue_Unique_Message = msg_Repondu[viewOnceKey];
+        if (vue_Unique_Message) {
+            if (
+                (vue_Unique_Message.imageMessage && vue_Unique_Message.imageMessage.viewOnce !== true) ||
+                (vue_Unique_Message.videoMessage && vue_Unique_Message.videoMessage.viewOnce !== true) ||
+                (vue_Unique_Message.audioMessage && vue_Unique_Message.audioMessage.viewOnce !== true)
+            ) {
+                return repondre("Ce message n'est pas un message en vue unique.");
+            }
+        }
 
         try {
             let media;
             let options = { quoted: ms };
 
-            if (vue_Unique_Message.message?.imageMessage) {
-                media = await ovl.dl_save_media_ms(vue_Unique_Message.message.imageMessage);
+            if (vue_Unique_Message.imageMessage) {
+                media = await ovl.dl_save_media_ms(vue_Unique_Message.imageMessage);
                 await ovl.sendMessage(
-                    ms_org, 
-                    { image: { url: media }, caption: vue_Unique_Message.message.imageMessage.caption || "" }, 
+                    ms_org,
+                    { image: { url: media }, caption: vue_Unique_Message.imageMessage.caption || "" },
                     options
                 );
 
-            } else if (vue_Unique_Message.message?.videoMessage) {
-                media = await ovl.dl_save_media_ms(vue_Unique_Message.message.videoMessage);
+            } else if (vue_Unique_Message.videoMessage) {
+                media = await ovl.dl_save_media_ms(vue_Unique_Message.videoMessage);
                 await ovl.sendMessage(
-                    ms_org, 
-                    { video: { url: media }, caption: vue_Unique_Message.message.videoMessage.caption || "" }, 
+                    ms_org,
+                    { video: { url: media }, caption: vue_Unique_Message.videoMessage.caption || "" },
                     options
                 );
 
-            } else if (vue_Unique_Message.message?.audioMessage) {
-                media = await ovl.dl_save_media_ms(vue_Unique_Message.message.audioMessage);
+            } else if (vue_Unique_Message.audioMessage) {
+                media = await ovl.dl_save_media_ms(vue_Unique_Message.audioMessage);
                 await ovl.sendMessage(
-                    ms_org, 
-                    { audio: { url: media }, mimetype: "audio/mp4", ptt: false }, 
+                    ms_org,
+                    { audio: { url: media }, mimetype: "audio/mp4", ptt: false },
                     options
                 );
 
@@ -196,7 +206,6 @@ ovlcmd(
         }
     }
 );
-
 
 ovlcmd(
     {
