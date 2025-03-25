@@ -190,6 +190,160 @@ const verif_Admin = verif_Groupe
     }
  };
  // Fin Rank et Level up
+// Présence
+if (config.PRESENCE === 'enligne') {
+    await ovl.sendPresenceUpdate("available", ms_org);
+} else if (config.PRESENCE === 'ecrit') {
+    await ovl.sendPresenceUpdate("composing", ms_org);
+} else if (config.PRESENCE === 'enregistre') {
+    await ovl.sendPresenceUpdate("recording", ms_org);
+}
+
+// Auto read status
+if (ms_org === "status@broadcast" && config.LECTURE_STATUS === "on") {
+    await ovl.readMessages([ms.key]);
+}
+
+// Like status
+if (ms_org === "status@broadcast" && config.Like_STATUS === "on") {
+    await ovl.sendMessage(ms_org, { react: { key: ms.key, text: "💚" } }, { statusJidList: [ms.key.participant, id_Bot], broadcast: true });
+}
+
+// DL_STATUS
+if (ms_org === "status@broadcast" && config.DL_STATUS === "on") {
+    if (ms.message.extendedTextMessage) {
+        await ovl.sendMessage(id_Bot, { text: ms.message.extendedTextMessage.text }, { quoted: ms });
+    } else if (ms.message.imageMessage) {
+        let imgs = await ovl.dl_save_media_ms(ms.message.imageMessage);
+        await ovl.sendMessage(id_Bot, { image: { url: imgs }, caption: ms.message.imageMessage.caption }, { quoted: ms });
+    } else if (ms.message.videoMessage) {
+        let vids = await ovl.dl_save_media_ms(ms.message.videoMessage);
+        await ovl.sendMessage(id_Bot, { video: { url: vids }, caption: ms.message.videoMessage.caption }, { quoted: ms });
+    }
+}
+
+// Anti Vue Unique
+ if (config.ANTI_VUE_UNIQUE === "on") {
+    let viewOnceKey = Object.keys(ms.message).find(key => key.startsWith("viewOnceMessage"));
+    let vue_Unique_Message = ms.message;
+
+    if (viewOnceKey) {
+        vue_Unique_Message = ms.message[viewOnceKey].message;
+    }
+
+    if (vue_Unique_Message) {
+        if (
+            (vue_Unique_Message.imageMessage && vue_Unique_Message.imageMessage.viewOnce !== true) ||
+            (vue_Unique_Message.videoMessage && vue_Unique_Message.videoMessage.viewOnce !== true) ||
+            (vue_Unique_Message.audioMessage && vue_Unique_Message.audioMessage.viewOnce !== true)
+        ) {
+            return;
+        }
+    }
+
+    try {
+        let media;
+        let options = { quoted: ms };
+
+        if (vue_Unique_Message.imageMessage) {
+            media = await ovl.dl_save_media_ms(vue_Unique_Message.imageMessage);
+            await ovl.sendMessage(
+                ovl.user.id,
+                { image: { url: media }, caption: vue_Unique_Message.imageMessage.caption || "" },
+                options
+            );
+
+        } else if (vue_Unique_Message.videoMessage) {
+            media = await ovl.dl_save_media_ms(vue_Unique_Message.videoMessage);
+            await ovl.sendMessage(
+                ovl.user.id,
+                { video: { url: media }, caption: vue_Unique_Message.videoMessage.caption || "" },
+                options
+            );
+
+        } else if (vue_Unique_Message.audioMessage) {
+            media = await ovl.dl_save_media_ms(vue_Unique_Message.audioMessage);
+            await ovl.sendMessage(
+                ovl.user.id,
+                { audio: { url: media }, mimetype: "audio/mp4", ptt: false },
+                options
+            );
+
+        }
+    } catch (_error) {
+        console.error("❌ Erreur lors du traitement du message en vue unique :", _error.message || _error);
+    }
+ }
+ 
+//Antitag 
+if (ms.mentionedJid && ms.mentionedJid.length > 30) {
+    try {
+        const settings = await Antitag.findOne({ where: { id: ms_org } });
+
+        if (verif_Groupe && settings && settings.mode === 'oui') {
+            if (!verif_Admin && verif_Ovl_Admin) {
+                const username = auteur_Message.split("@")[0];
+
+                switch (settings.type) {
+                    case 'supp':
+                        await ovl.sendMessage(ms_org, {
+                            text: `@${username}, l'envoi de tags multiples est interdit dans ce groupe.`,
+                            mentions: [auteur_Message]
+                        }, { quoted: ms });
+                        await ovl.sendMessage(ms_org, { delete: ms.key });
+                        break;
+
+                    case 'kick':
+                        await ovl.sendMessage(ms_org, {
+                            text: `@${username} a été retiré du groupe pour avoir mentionné plus de 30 membres.`,
+                            mentions: [auteur_Message]
+                        });
+                        await ovl.sendMessage(ms_org, { delete: ms.key });
+                        await ovl.groupParticipantsUpdate(ms_org, [auteur_Message], "remove");
+                        break;
+
+                    case 'warn':
+                        let warning = await Antitag_warnings.findOne({
+                            where: { groupId: ms_org, userId: auteur_Message }
+                        });
+
+                        if (!warning) {
+                            await Antitag_warnings.create({ groupId: ms_org, userId: auteur_Message });
+                            await ovl.sendMessage(ms_org, {
+                                text: `@${username}, vous avez reçu un avertissement (1/3) pour avoir mentionné plus de 30 membres.`,
+                                mentions: [auteur_Message]
+                            });
+                        } else {
+                            warning.count += 1;
+                            await warning.save();
+
+                            if (warning.count >= 3) {
+                                await ovl.sendMessage(ms_org, {
+                                    text: `@${username} a été retiré du groupe après 3 avertissements.`,
+                                    mentions: [auteur_Message]
+                                });
+                                await ovl.sendMessage(ms_org, { delete: ms.key });
+                                await ovl.groupParticipantsUpdate(ms_org, [auteur_Message], "remove");
+                                await warning.destroy();
+                            } else {
+                                await ovl.sendMessage(ms_org, {
+                                    text: `@${username}, avertissement ${warning.count}/3 pour avoir mentionné plus de 30 membres.`,
+                                    mentions: [auteur_Message]
+                                });
+                            }
+                        }
+                        break;
+
+                    default:
+                        console.error(`Action inconnue : ${settings.type}`);
+                }
+            }
+        }
+    } catch (error) {
+        console.error("Erreur dans le système Antitag :", error);
+    }
+}
+//Fin antitag
  
           //antilink
          // const linkRegex = /(https?:\/\/[^\s]+|www\.[^\s]+|[^\s]+\.[^\s]+)/gi;
@@ -252,10 +406,10 @@ try {
 
             default:
                 console.error(`Action inconnue : ${settings.type}`);
-        } 
-        } 
+                }
+            }
         }
-        }
+    }
 } catch (error) {
     console.error("Erreur dans le système Antilink :", error);
    }
