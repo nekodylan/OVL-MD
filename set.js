@@ -13,4 +13,8 @@ module.exports = {
   DATABASE: process.env.DATABASE || "postgresql://postgres.qnjvgxwyncnsbpfxwrbq:ovlmdmdpasse@aws-0-eu-central-1.pooler.supabase.com:6543/postgres",
   ANTIDELETE: process.env.ANTIDELETE || "non",
   RENDER_API_KEY: process.env.RENDER_API_KEY,
+  PRESENCE: process.env.PRESENCE || "off",
+  LIKE_STATUS: process.env.LIKE_STATUS || "off",
+  ANTI_VUE_UNIQUE: process.env.ANTI_VUE_UNIQUE || "off", 
+  DL_STATUS :process.env.DL_STATUS || "off",
 };
