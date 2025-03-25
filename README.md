@@ -106,7 +106,7 @@ RENDER_API_KEY=
 DL_STATUS=on/off
 ANTI_VUE_UNIQUE=on/off
 LIKE_STATUS=on/off
-PRESENCE=on/off
+PRESENCE=off/enregistre/ecrit/enligne
 LECTURE_STATUS=on/off
 ```
 ---
