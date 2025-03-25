@@ -16,5 +16,6 @@ module.exports = {
   PRESENCE: process.env.PRESENCE || "off",
   LIKE_STATUS: process.env.LIKE_STATUS || "off",
   ANTI_VUE_UNIQUE: process.env.ANTI_VUE_UNIQUE || "off", 
-  DL_STATUS :process.env.DL_STATUS || "off",
+  DL_STATUS: process.env.DL_STATUS || "off",
+  LECTURE_STATUS: process.env.LECTURE_STATUS || "off",
 };
