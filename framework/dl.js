@@ -186,7 +186,7 @@ async function twitterdl(url, maxRetries = 5) {
       await new Promise((resolve) => setTimeout(resolve, 2000));
     }
   }
-}
+};
 
 async function ytdl(url, format = "m4a", maxRetries = 15) {
   let attempts = 0;
@@ -249,5 +249,6 @@ async function ytdl(url, format = "m4a", maxRetries = 15) {
       await new Promise((resolve) => setTimeout(resolve, 2000));
     }
   }
+}
 
 module.exports = { fbdl, ttdl, igdl, twitterdl, ytdl };
