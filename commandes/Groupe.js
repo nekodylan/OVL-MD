@@ -1,6 +1,7 @@
 const { ovlcmd } = require("../framework/ovlcmd");
 const { Sticker, StickerTypes } = require('wa-sticker-formatter');
 const { Antilink } = require("../DataBase/antilink");
+const { Antitag } = require("../DataBase/antitag");
 const { Antibot } = require("../DataBase/antibot");
 const { GroupSettings } = require("../DataBase/events");
 const fs = require("fs");
@@ -958,6 +959,68 @@ ovlcmd(
       );
     } catch (error) {
       console.error("Erreur lors de la configuration d'antilink :", error);
+      repondre("Une erreur s'est produite lors de l'exécution de la commande.");
+    }
+  }
+);
+
+ovlcmd(
+  {
+    nom_cmd: "antitag",
+    classe: "Groupe",
+    react: "🔗",
+    desc: "Active ou configure l'antitag pour les groupes",
+  },
+  async (jid, ovl, cmd_options) => {
+      const { ms, repondre, arg, verif_Groupe, verif_Admin } = cmd_options;
+    try {
+      
+      if (!verif_Groupe) {
+        return repondre("Cette commande ne fonctionne que dans les groupes");
+      }
+
+      if (!verif_Admin) {
+        return repondre("Seuls les administrateurs peuvent utiliser cette commande");
+      }
+
+      const sousCommande = arg[0]?.toLowerCase();
+      const validModes = ['on', 'off'];
+      const validTypes = ['supp', 'warn', 'kick'];
+
+      const [settings] = await Antitag.findOrCreate({
+        where: { id: jid },
+        defaults: { id: jid, mode: 'non', type: 'supp' },
+      });
+
+      if (validModes.includes(sousCommande)) {
+        const newMode = sousCommande === 'on' ? 'oui' : 'non';
+        if (settings.mode === newMode) {
+          return repondre(`L'Antitag est déjà ${sousCommande}`);
+        }
+        settings.mode = newMode;
+        await settings.save();
+        return repondre(`L'Antitag ${sousCommande === 'on' ? 'activé' : 'désactivé'} avec succès !`);
+      }
+
+      if (validTypes.includes(sousCommande)) {
+        if (settings.mode !== 'oui') {
+          return repondre("Veuillez activer l'antitag d'abord en utilisant `antitag on`");
+        }
+        if (settings.type === sousCommande) {
+          return repondre(`L'action antitag est déjà définie sur ${sousCommande}`);
+        }
+        settings.type = sousCommande;
+        await settings.save();
+        return repondre(`L'Action de l'antitag définie sur ${sousCommande} avec succès !`);
+      }
+
+      return repondre(
+        "Utilisation :\n" +
+        "antitag on/off: Activer ou désactiver l'antitag\n" +
+        "antitag supp/warn/kick: Configurer l'action antitag"
+      );
+    } catch (error) {
+      console.error("Erreur lors de la configuration d'antitag :", error);
       repondre("Une erreur s'est produite lors de l'exécution de la commande.");
     }
   }
