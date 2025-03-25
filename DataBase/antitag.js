@@ -50,7 +50,7 @@ const Antitag_warnings = sequelize.define('Antitag_warnings', {
 });
 
 (async () => {
-  await Antilink.sync();
+  await Antitag.sync();
   console.log("Table 'Antitag' synchronisée avec succès.");
 
   await Antitag_warnings.sync();
