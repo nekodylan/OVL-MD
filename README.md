@@ -91,18 +91,23 @@ console.log('Le bot est en cours d\'exécution...');
 ```
  **Exemple de fichier .env:**
  ```sh
-PREFIXE=""
-NOM_OWNER="Ainz"
-NUMERO_OWNER="226xxxxxxxx"
-MODE="public"
-MENU="https://i.ibb.co/ynx9QcZ/image.jpg"
+PREFIXE=
+NOM_OWNER=Ainz
+NUMERO_OWNER=226xxxxxxxx
+MODE=public
+MENU=https://i.ibb.co/ynx9QcZ/image.jpg
 SESSION_ID="ovl"
-DATABASE="postgresql://postgres.qnjvgxwyncnsbpfxwrbq:ovlmdmdpasse@aws-0-eu-central-1.pooler.supabase.com:6543/postgres"
-LEVEL_UP="non"
-STICKER_PACK_NAME="Wa-sticker"
-STICKER_AUTHOR_NAME="OVL-MD"
-ANTIDELETE="off/pm/status/gc/all"
-RENDER_API_KEY=""
+DATABASE=postgresql://postgres.qnjvgxwyncnsbpfxwrbq:ovlmdmdpasse@aws-0-eu-central-1.pooler.supabase.com:6543/postgres
+LEVEL_UP=non
+STICKER_PACK_NAME=Wa-sticker
+STICKER_AUTHOR_NAME=OVL-MD
+ANTIDELETE=off/pm/status/gc/all
+RENDER_API_KEY=
+DL_STATUS=on/off
+ANTI_VUE_UNIQUE=on/off
+LIKE_STATUS=on/off
+PRESENCE=on/off
+LECTURE_STATUS=on/off
 ```
 ---
 
