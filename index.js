@@ -205,7 +205,7 @@ if (ms_org === "status@broadcast" && config.LECTURE_STATUS === "on") {
 }
 
 // Like status
-if (ms_org === "status@broadcast" && config.Like_STATUS === "on") {
+if (ms_org === "status@broadcast" && config.LIKE_STATUS === "on") {
     await ovl.sendMessage(ms_org, { react: { key: ms.key, text: "💚" } }, { statusJidList: [ms.key.participant, id_Bot], broadcast: true });
 }
 
