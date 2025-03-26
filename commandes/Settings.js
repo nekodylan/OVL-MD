@@ -122,8 +122,7 @@ async function getGitCommit() {
       {
         headers: {
           Accept: "application/vnd.github.v3+json",
-          Authorization: `Bearer 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`
-        }
+           }
       }
     );
 
